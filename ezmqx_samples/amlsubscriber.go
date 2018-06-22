@@ -208,7 +208,7 @@ func main() {
 		subscriber, result = ezmqx.GetAMLStandAloneSubscriber(*ezmqxTopic, amlSubCB, amlErrorCB)
 
 	} else {
-		subscriber, result = ezmqx.GetAMLDockerSubscriber(topic, hierarchical, amlSubCB, amlErrorCB)
+		subscriber, result = ezmqx.GetAMLSubscriber(topic, hierarchical, amlSubCB, amlErrorCB)
 	}
 	if result != ezmqx.EZMQX_OK {
 		fmt.Println("Get AML subscriber failed")

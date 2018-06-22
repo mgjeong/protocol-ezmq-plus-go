@@ -30,7 +30,7 @@ type EZMQXAMLPublisher struct {
 }
 
 // Get EZMQX publisher instance.
-func GetPublisher(topic string, modelInfo EZMQXAmlModelInfo, modelId string, optionalPort int) (*EZMQXAMLPublisher, EZMQXErrorCode) {
+func GetAMLPublisher(topic string, modelInfo EZMQXAmlModelInfo, modelId string, optionalPort int) (*EZMQXAMLPublisher, EZMQXErrorCode) {
 	var instance *EZMQXAMLPublisher
 	instance = &EZMQXAMLPublisher{}
 	instance.publisher = getPublisher()
@@ -38,7 +38,7 @@ func GetPublisher(topic string, modelInfo EZMQXAmlModelInfo, modelId string, opt
 	if result != EZMQX_OK {
 		return nil, result
 	}
-	result = instance.registerTopic(topic, modelInfo, modelId, optionalPort)
+	result = instance.registerTopic(topic, modelInfo, modelId)
 	if result != EZMQX_OK {
 		Logger.Error("Register topic failed, stopping ezmq publisher")
 		instance.publisher.ezmqPublisher.Stop()
@@ -105,16 +105,10 @@ func (instance *EZMQXAMLPublisher) GetTopic() (*EZMQXTopic, EZMQXErrorCode) {
 	return publisher.getTopic(), EZMQX_OK
 }
 
-func (instance *EZMQXAMLPublisher) registerTopic(topic string, modelInfo EZMQXAmlModelInfo, modelId string, optionalPort int) EZMQXErrorCode {
+func (instance *EZMQXAMLPublisher) registerTopic(topic string, modelInfo EZMQXAmlModelInfo, modelId string) EZMQXErrorCode {
 	var errorCode EZMQXErrorCode
 	publisher := instance.publisher
 	context := publisher.context
-	//validate topic
-	result := validateTopic(topic)
-	if false == result {
-		Logger.Error("Topic validation failed")
-		return EZMQX_INVALID_TOPIC
-	}
 	if AML_MODEL_ID == modelInfo {
 		instance.representation, errorCode = context.getAmlRep(modelId)
 		if errorCode != EZMQX_OK {

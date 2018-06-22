@@ -39,7 +39,7 @@ type EZMQXAMLSubscriber struct {
 
 // Get AML subscriber instance for given topic.
 // It will work, if EZMQX is configured in docker mode.
-func GetAMLDockerSubscriber(topic string, isHierarchical bool, subCallback EZMQXAmlSubCB, errorCallback EZMQXAmlErrorCB) (*EZMQXAMLSubscriber, EZMQXErrorCode) {
+func GetAMLSubscriber(topic string, isHierarchical bool, subCallback EZMQXAmlSubCB, errorCallback EZMQXAmlErrorCB) (*EZMQXAMLSubscriber, EZMQXErrorCode) {
 	instance := createAmlSubscriber(subCallback, errorCallback)
 	result := instance.subscriber.initialize(topic, isHierarchical)
 	if result != EZMQX_OK {

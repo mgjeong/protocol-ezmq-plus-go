@@ -147,7 +147,7 @@ func main() {
 		subscriber, result = ezmqx.GetXMLStandAloneSubscriber(*ezmqxTopic, amlSubCB, amlErrorCB)
 
 	} else {
-		subscriber, result = ezmqx.GetXMLDockerSubscriber(topic, hierarchical, amlSubCB, amlErrorCB)
+		subscriber, result = ezmqx.GetXMLSubscriber(topic, hierarchical, amlSubCB, amlErrorCB)
 	}
 	if result != ezmqx.EZMQX_OK {
 		fmt.Println("Get XML subscriber failed")

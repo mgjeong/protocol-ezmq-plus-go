@@ -39,7 +39,7 @@ type EZMQXXMLSubscriber struct {
 
 // Get XML subscriber instance for given topic.
 // It will work, if EZMQX is configured in docker mode.
-func GetXMLDockerSubscriber(topic string, isHierarchical bool, subCallback EZMQXXmlSubCB, errorCallback EZMQXXmlErrorCB) (*EZMQXXMLSubscriber, EZMQXErrorCode) {
+func GetXMLSubscriber(topic string, isHierarchical bool, subCallback EZMQXXmlSubCB, errorCallback EZMQXXmlErrorCB) (*EZMQXXMLSubscriber, EZMQXErrorCode) {
 	instance := createXmlSubscriber(subCallback, errorCallback)
 	result := instance.subscriber.initialize(topic, isHierarchical)
 	if result != EZMQX_OK {

@@ -158,7 +158,7 @@ func main() {
 		os.Exit(-1)
 	}
 
-	publisher, errorCode = ezmqx.GetPublisher(topic, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), port)
+	publisher, errorCode = ezmqx.GetAMLPublisher(topic, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), port)
 	if errorCode != ezmq.EZMQ_OK {
 		fmt.Println("Get publiser failed")
 		os.Exit(-1)

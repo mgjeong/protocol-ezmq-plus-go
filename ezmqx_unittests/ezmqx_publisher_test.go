@@ -31,7 +31,7 @@ func TestGetPublisherTest(t *testing.T) {
 	amlFilePath := list.New()
 	amlFilePath.PushBack(AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
-	publisher, _ := ezmqx.GetPublisher(utils.TOPIC, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), utils.PORT)
+	publisher, _ := ezmqx.GetAMLPublisher(utils.TOPIC, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), utils.PORT)
 	if nil == publisher {
 		t.Errorf("publisher is nil")
 	}
@@ -42,7 +42,7 @@ func TestGetPublisherTest(t *testing.T) {
 func TestGetPublisherTest1(t *testing.T) {
 	configInstance := ezmqx.GetConfigInstance()
 	configInstance.StartStandAloneMode(false, "")
-	publisher, _ := ezmqx.GetPublisher(utils.TOPIC, ezmqx.AML_FILE_PATH, utils.FILE_PATH, utils.PORT)
+	publisher, _ := ezmqx.GetAMLPublisher(utils.TOPIC, ezmqx.AML_FILE_PATH, utils.FILE_PATH, utils.PORT)
 	if nil == publisher {
 		t.Errorf("publisher is nil")
 	}
@@ -53,7 +53,7 @@ func TestGetPublisherTest1(t *testing.T) {
 func TestPublish(t *testing.T) {
 	configInstance := ezmqx.GetConfigInstance()
 	configInstance.StartStandAloneMode(false, "")
-	publisher, _ := ezmqx.GetPublisher(utils.TOPIC, ezmqx.AML_FILE_PATH, utils.FILE_PATH, utils.PORT)
+	publisher, _ := ezmqx.GetAMLPublisher(utils.TOPIC, ezmqx.AML_FILE_PATH, utils.FILE_PATH, utils.PORT)
 	result := publisher.Publish(utils.GetAMLObject())
 	if result != ezmqx.EZMQX_OK {
 		t.Errorf("publish failed")
@@ -65,7 +65,7 @@ func TestPublish(t *testing.T) {
 func TestTerminate(t *testing.T) {
 	configInstance := ezmqx.GetConfigInstance()
 	configInstance.StartStandAloneMode(false, "")
-	publisher, _ := ezmqx.GetPublisher(utils.TOPIC, ezmqx.AML_FILE_PATH, utils.FILE_PATH, utils.PORT)
+	publisher, _ := ezmqx.GetAMLPublisher(utils.TOPIC, ezmqx.AML_FILE_PATH, utils.FILE_PATH, utils.PORT)
 	isTerminated, _ := publisher.IsTerminated()
 	if true == isTerminated {
 		t.Errorf("Publisher terminated")
@@ -84,7 +84,7 @@ func TestTerminate(t *testing.T) {
 func TestGetTopic(t *testing.T) {
 	configInstance := ezmqx.GetConfigInstance()
 	configInstance.StartStandAloneMode(false, "")
-	publisher, _ := ezmqx.GetPublisher(utils.TOPIC, ezmqx.AML_FILE_PATH, utils.FILE_PATH, utils.PORT)
+	publisher, _ := ezmqx.GetAMLPublisher(utils.TOPIC, ezmqx.AML_FILE_PATH, utils.FILE_PATH, utils.PORT)
 	result := publisher.Publish(utils.GetAMLObject())
 	if result != ezmqx.EZMQX_OK {
 		t.Errorf("publish failed")

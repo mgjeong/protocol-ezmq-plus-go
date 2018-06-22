@@ -123,6 +123,11 @@ func (instance *EZMQXPublisher) parseTopicResponse(response http.Response) EZMQX
 }
 
 func (instance *EZMQXPublisher) registerTopic(topic *EZMQXTopic) EZMQXErrorCode {
+	isValid := validateTopic(topic.GetName())
+	if false == isValid {
+		Logger.Error("Topic validation failed")
+		return EZMQX_INVALID_TOPIC
+	}
 	instance.topic = topic
 	context := instance.context
 	if !context.isCtxTnsEnabled() {

@@ -26,7 +26,6 @@ import (
 	"go/ezmq"
 	"io/ioutil"
 	"net/http"
-	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -38,9 +37,8 @@ type EZMQXSubscriber struct {
 	context        *EZMQXContext
 	storedTopics   *list.List
 	amlRepDic      map[string]*aml.Representation
-	terminated     atomic.Value
+	status         uint32
 	internalCB     EZMQXSubCB
-	mutex          *sync.Mutex
 }
 
 func getEZMQXSubscriber() *EZMQXSubscriber {
@@ -49,9 +47,8 @@ func getEZMQXSubscriber() *EZMQXSubscriber {
 	instance.context = getContextInstance()
 	instance.storedTopics = list.New()
 	instance.amlRepDic = make(map[string]*aml.Representation)
-	instance.terminated.Store(false)
 	instance.ezmqSubscriber = nil
-	instance.mutex = &sync.Mutex{}
+	instance.status = CREATED
 	return instance
 }
 
@@ -219,29 +216,33 @@ func (instance *EZMQXSubscriber) storeTopics(topics list.List) EZMQXErrorCode {
 		}
 		instance.storedTopics.PushBack(ezmqxTopic)
 	}
+	atomic.StoreUint32(&instance.status, INITIALIZED)
 	return EZMQX_OK
 }
 
 func (instance *EZMQXSubscriber) terminate() EZMQXErrorCode {
-	instance.mutex.Lock()
-	defer instance.mutex.Unlock()
-	if true == instance.terminated.Load() {
-		return EZMQX_TERMINATED
+	if false == atomic.CompareAndSwapUint32(&instance.status, INITIALIZED, TERMINATING) {
+		Logger.Error("terminate failed : Not initialized")
+		return EZMQX_UNKNOWN_STATE
 	}
 	ezmqSubscriber := instance.ezmqSubscriber
 	if ezmqSubscriber != nil {
 		result := ezmqSubscriber.Stop()
 		if result != ezmq.EZMQ_OK {
 			Logger.Error("EZMQ subscriber stop: failed")
+			atomic.StoreUint32(&instance.status, INITIALIZED)
 			return EZMQX_UNKNOWN_STATE
 		}
 	}
-	instance.terminated.Store(true)
+	atomic.StoreUint32(&instance.status, CREATED)
 	return EZMQX_OK
 }
 
 func (instance *EZMQXSubscriber) isTerminated() bool {
-	return instance.terminated.Load().(bool)
+	if atomic.LoadUint32(&instance.status) == CREATED {
+		return true
+	}
+	return false
 }
 
 func (instance *EZMQXSubscriber) getTopics() *list.List {

@@ -28,9 +28,8 @@ import (
 
 // Structure represents EZMQX configuration.
 type EZMQXConfig struct {
-	context     *EZMQXContext
-	initialized atomic.Value
-	mutex       *sync.Mutex
+	context *EZMQXContext
+	status  uint32
 }
 
 var configInstance *EZMQXConfig
@@ -43,9 +42,8 @@ func GetConfigInstance() *EZMQXConfig {
 	if nil == configInstance {
 		configInstance = &EZMQXConfig{}
 		configInstance.context = getContextInstance()
-		configInstance.initialized.Store(false)
+		configInstance.status = CREATED
 		rand.Seed(time.Now().UnixNano())
-		configInstance.mutex = &sync.Mutex{}
 		InitLogger()
 	}
 	return configInstance
@@ -54,18 +52,17 @@ func GetConfigInstance() *EZMQXConfig {
 // Start/Configure EZMQX in docker mode.
 // It works with Pharos system. In DockerMode, stack automatically use Tns service.
 func (configInstance *EZMQXConfig) StartDockerMode() EZMQXErrorCode {
-	configInstance.mutex.Lock()
-	defer configInstance.mutex.Unlock()
-	if true == configInstance.initialized.Load() {
-		Logger.Debug("Already started")
-		return EZMQX_INITIALIZED
+	if false == atomic.CompareAndSwapUint32(&configInstance.status, CREATED, INITIALIZING) {
+		Logger.Error("Initialize docker mode failed: Invalid state")
+		return EZMQX_UNKNOWN_STATE
 	}
 	result := configInstance.context.initializeDockerMode()
 	if result != EZMQX_OK {
 		Logger.Error("Initialize docker mode failed")
+		atomic.StoreUint32(&configInstance.status, CREATED)
 		return result
 	}
-	configInstance.initialized.Store(true)
+	atomic.StoreUint32(&configInstance.status, INITIALIZED)
 	Logger.Debug("Started docker mode")
 	return EZMQX_OK
 }
@@ -73,27 +70,24 @@ func (configInstance *EZMQXConfig) StartDockerMode() EZMQXErrorCode {
 // Start/Configure EZMQX in stand-alone mode.
 // It works without pharos system.
 func (configInstance *EZMQXConfig) StartStandAloneMode(useTns bool, tnsAddr string) EZMQXErrorCode {
-	configInstance.mutex.Lock()
-	defer configInstance.mutex.Unlock()
-	if true == configInstance.initialized.Load() {
-		Logger.Debug("Already started")
-		return EZMQX_INITIALIZED
+	if false == atomic.CompareAndSwapUint32(&configInstance.status, CREATED, INITIALIZING) {
+		Logger.Error("Initialize standalone mode failed: Invalid state")
+		return EZMQX_UNKNOWN_STATE
 	}
 	result := configInstance.context.initializeStandAloneMode(useTns, tnsAddr)
 	if result != EZMQX_OK {
 		Logger.Error("Initialize standalone mode failed")
+		atomic.StoreUint32(&configInstance.status, CREATED)
 		return result
 	}
-	configInstance.initialized.Store(true)
+	atomic.StoreUint32(&configInstance.status, INITIALIZED)
 	Logger.Debug("Started standalone mode")
 	return EZMQX_OK
 }
 
 // Add aml model file for publish or subscribe AML data.
 func (configInstance *EZMQXConfig) AddAmlModel(amlFilePath list.List) (*list.List, EZMQXErrorCode) {
-	configInstance.mutex.Lock()
-	defer configInstance.mutex.Unlock()
-	if false == configInstance.initialized.Load() {
+	if atomic.LoadUint32(&configInstance.status) != INITIALIZED {
 		Logger.Error("Not initialized")
 		return nil, EZMQX_NOT_INITIALIZED
 	}
@@ -102,18 +96,17 @@ func (configInstance *EZMQXConfig) AddAmlModel(amlFilePath list.List) (*list.Lis
 
 // Reset/Terminate EZMQX stack.
 func (configInstance *EZMQXConfig) Reset() EZMQXErrorCode {
-	configInstance.mutex.Lock()
-	defer configInstance.mutex.Unlock()
-	if false == configInstance.initialized.Load() {
-		Logger.Error("Not initialized")
-		return EZMQX_NOT_INITIALIZED
+	if false == atomic.CompareAndSwapUint32(&configInstance.status, INITIALIZED, TERMINATING) {
+		Logger.Error("Reset failed: invalid state")
+		return EZMQX_UNKNOWN_STATE
 	}
 	result := configInstance.context.terminate()
 	if result != EZMQX_OK {
 		Logger.Error("context terminate failed")
+		atomic.StoreUint32(&configInstance.status, INITIALIZED)
 		return result
 	}
-	configInstance.initialized.Store(false)
+	atomic.StoreUint32(&configInstance.status, CREATED)
 	Logger.Debug("EZMQX reset done")
 	return EZMQX_OK
 }

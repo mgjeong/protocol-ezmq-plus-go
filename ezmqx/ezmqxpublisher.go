@@ -27,7 +27,6 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"sync"
 	"time"
 )
 
@@ -37,15 +36,14 @@ type EZMQXPublisher struct {
 	topic         *EZMQXTopic
 	topicHandler  *EZMQXTopicHandler
 	localPort     int
-	terminated    atomic.Value
-	mutex         *sync.Mutex
+	status        uint32
 }
 
 func getPublisher() *EZMQXPublisher {
 	var instance *EZMQXPublisher
 	instance = &EZMQXPublisher{}
 	instance.context = getContextInstance()
-	instance.mutex = &sync.Mutex{}
+	instance.status = CREATED
 	return instance
 }
 
@@ -79,7 +77,7 @@ func (instance *EZMQXPublisher) initialize(optionalPort int) EZMQXErrorCode {
 		instance.topicHandler.initHandler()
 		Logger.Debug("Initialized topic handler")
 	}
-	instance.terminated.Store(false)
+	atomic.StoreUint32(&instance.status, INITIALIZED)
 	return EZMQX_OK
 }
 
@@ -211,17 +209,16 @@ func (instance *EZMQXPublisher) unRegisterTopic(topic *EZMQXTopic) EZMQXErrorCod
 }
 
 func (instance *EZMQXPublisher) terminate() EZMQXErrorCode {
-	instance.mutex.Lock()
-	defer instance.mutex.Unlock()
-	if true == instance.terminated.Load() {
-		Logger.Error("Publisher already terminated")
-		return EZMQX_TERMINATED
+	if false == atomic.CompareAndSwapUint32(&instance.status, INITIALIZED, TERMINATING) {
+		Logger.Error("terminate failed : Not initialized")
+		return EZMQX_UNKNOWN_STATE
 	}
 	context := instance.context
 	if !context.isCtxStandAlone() {
 		result := instance.context.releaseDynamicPort(instance.localPort)
 		if result != EZMQX_OK {
 			Logger.Error("Release dynamic port: failed")
+			atomic.StoreUint32(&instance.status, INITIALIZED)
 			return EZMQX_UNKNOWN_STATE
 		}
 		Logger.Debug("Released local port")
@@ -230,6 +227,7 @@ func (instance *EZMQXPublisher) terminate() EZMQXErrorCode {
 		result := instance.unRegisterTopic(instance.topic)
 		if result != EZMQX_OK {
 			Logger.Error("Unregister topic: failed")
+			atomic.StoreUint32(&instance.status, INITIALIZED)
 			return EZMQX_UNKNOWN_STATE
 		}
 		Logger.Debug("Unregistered topic on TNS")
@@ -238,16 +236,20 @@ func (instance *EZMQXPublisher) terminate() EZMQXErrorCode {
 		result := instance.ezmqPublisher.Stop()
 		if result != EZMQX_OK {
 			Logger.Error("Stop EZMQ publisher: failed")
+			atomic.StoreUint32(&instance.status, INITIALIZED)
 			return EZMQX_UNKNOWN_STATE
 		}
 		Logger.Debug("Stopped EZMQ publisher")
 	}
-	instance.terminated.Store(true)
+	atomic.StoreUint32(&instance.status, CREATED)
 	return EZMQX_OK
 }
 
 func (instance *EZMQXPublisher) isTerminated() bool {
-	return instance.terminated.Load().(bool)
+	if atomic.LoadUint32(&instance.status) == CREATED {
+		return true
+	}
+	return false
 }
 
 func (instance *EZMQXPublisher) getTopic() *EZMQXTopic {

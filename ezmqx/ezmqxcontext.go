@@ -50,11 +50,8 @@ type EZMQXContext struct {
 }
 
 var ctxInstance *EZMQXContext
-var contextMutex = &sync.Mutex{}
 
 func getContextInstance() *EZMQXContext {
-	contextMutex.Lock()
-	defer contextMutex.Unlock()
 	if nil == ctxInstance {
 		ctxInstance = &EZMQXContext{}
 		ctxInstance.initialized.Store(false)

@@ -32,6 +32,10 @@ const TOPIC_PATTERN = "^(/)[a-zA-Z0-9-_./]+$"
 
 //const TOPIC_WILD_CARD = "*"
 //const TOPIC_WILD_PATTERN = "/*/";
+const CREATED = 0
+const INITIALIZING = 1
+const INITIALIZED = 2
+const TERMINATING = 3
 
 func validateTopic(topic string) bool {
 	if 0 == len(topic) {

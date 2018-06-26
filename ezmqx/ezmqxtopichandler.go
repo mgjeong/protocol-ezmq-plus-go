@@ -41,7 +41,6 @@ type EZMQXTopicHandler struct {
 	poller             *zmq.Poller
 	ezmqxContext       *EZMQXContext
 	handlerAddress     string
-	initialized        atomic.Value
 	keepAliveInterval  atomic.Value
 	isKeepAliveStarted atomic.Value
 	isRoutineStarted   atomic.Value
@@ -49,6 +48,7 @@ type EZMQXTopicHandler struct {
 	topicList          *list.List
 	shutdownChan       chan string
 	mutex              *sync.Mutex
+	status             uint32
 }
 
 var topicHandler *EZMQXTopicHandler
@@ -61,7 +61,6 @@ func getTopicHandler() *EZMQXTopicHandler {
 		topicHandler = &EZMQXTopicHandler{}
 		topicHandler.context = ezmq.GetInstance().GetContext()
 		topicHandler.tnsAddress = getContextInstance().ctxGetTnsAddr()
-		topicHandler.initialized.Store(false)
 		var interval int64 = -1
 		topicHandler.keepAliveInterval.Store(interval)
 		topicHandler.isKeepAliveStarted.Store(false)
@@ -69,16 +68,16 @@ func getTopicHandler() *EZMQXTopicHandler {
 		topicHandler.topicList = list.New()
 		topicHandler.shutdownChan = nil
 		topicHandler.mutex = &sync.Mutex{}
+		topicHandler.status = CREATED
 	}
 	return topicHandler
 }
 
 func (instance *EZMQXTopicHandler) initHandler() {
-	instance.mutex.Lock()
-	defer instance.mutex.Unlock()
-	if true == instance.initialized.Load() {
+	if false == atomic.CompareAndSwapUint32(&instance.status, CREATED, INITIALIZING) {
 		return
 	}
+
 	// Topic server
 	if nil == instance.topicServer {
 		address := getInProcUniqueAddress()
@@ -109,7 +108,7 @@ func (instance *EZMQXTopicHandler) initHandler() {
 		go handleEvents(instance)
 		Logger.Debug("Topic Handler thread started")
 	}
-	instance.initialized.Store(true)
+	atomic.StoreUint32(&instance.status, INITIALIZED)
 }
 
 func (instance *EZMQXTopicHandler) parseSocketData(topicServer *zmq.Socket) bool {
@@ -252,11 +251,10 @@ func (instance *EZMQXTopicHandler) sendKeepAlive() {
 }
 
 func (instance *EZMQXTopicHandler) terminateHandler() {
-	instance.mutex.Lock()
-	defer instance.mutex.Unlock()
-	if false == instance.initialized.Load() {
+	if false == atomic.CompareAndSwapUint32(&instance.status, INITIALIZED, TERMINATING) {
 		return
 	}
+
 	//shut down channel to stop go routine
 	instance.shutdownChan = make(chan string)
 	timeout := make(chan bool, 1)
@@ -297,7 +295,7 @@ func (instance *EZMQXTopicHandler) terminateHandler() {
 	instance.keepAliveInterval.Store(interval)
 	instance.isKeepAliveStarted.Store(false)
 	instance.isRoutineStarted.Store(false)
-	instance.initialized.Store(false)
+	atomic.StoreUint32(&instance.status, CREATED)
 }
 
 func (instance *EZMQXTopicHandler) updateKeepAliveInterval(interval int64) {

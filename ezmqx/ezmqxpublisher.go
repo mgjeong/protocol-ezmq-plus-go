@@ -218,19 +218,17 @@ func (instance *EZMQXPublisher) terminate() EZMQXErrorCode {
 		result := instance.context.releaseDynamicPort(instance.localPort)
 		if result != EZMQX_OK {
 			Logger.Error("Release dynamic port: failed")
-			atomic.StoreUint32(&instance.status, INITIALIZED)
-			return EZMQX_UNKNOWN_STATE
+		} else {
+			Logger.Debug("Released local port")
 		}
-		Logger.Debug("Released local port")
 	}
 	if context.isCtxTnsEnabled() {
 		result := instance.unRegisterTopic(instance.topic)
 		if result != EZMQX_OK {
 			Logger.Error("Unregister topic: failed")
-			atomic.StoreUint32(&instance.status, INITIALIZED)
-			return EZMQX_UNKNOWN_STATE
+		} else {
+			Logger.Debug("Unregistered topic on TNS")
 		}
-		Logger.Debug("Unregistered topic on TNS")
 	}
 	if nil != instance.ezmqPublisher {
 		result := instance.ezmqPublisher.Stop()

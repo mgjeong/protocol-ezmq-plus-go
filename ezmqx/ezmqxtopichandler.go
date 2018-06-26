@@ -29,6 +29,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -47,11 +48,15 @@ type EZMQXTopicHandler struct {
 	tnsAddress         string
 	topicList          *list.List
 	shutdownChan       chan string
+	mutex              *sync.Mutex
 }
 
 var topicHandler *EZMQXTopicHandler
+var handlerMutex = &sync.Mutex{}
 
 func getTopicHandler() *EZMQXTopicHandler {
+	handlerMutex.Lock()
+	defer handlerMutex.Unlock()
 	if nil == topicHandler {
 		topicHandler = &EZMQXTopicHandler{}
 		topicHandler.context = ezmq.GetInstance().GetContext()
@@ -63,11 +68,14 @@ func getTopicHandler() *EZMQXTopicHandler {
 		topicHandler.isRoutineStarted.Store(false)
 		topicHandler.topicList = list.New()
 		topicHandler.shutdownChan = nil
+		topicHandler.mutex = &sync.Mutex{}
 	}
 	return topicHandler
 }
 
 func (instance *EZMQXTopicHandler) initHandler() {
+	instance.mutex.Lock()
+	defer instance.mutex.Unlock()
 	if true == instance.initialized.Load() {
 		return
 	}
@@ -143,7 +151,7 @@ func handleEvents(instance *EZMQXTopicHandler) {
 	var err error
 	var lastKeepAlive int64 = 0
 	duration := time.Duration(1 * time.Second)
-	for {
+	for instance.poller != nil {
 		duration = time.Duration(instance.keepAliveInterval.Load().(int64)) * time.Second
 		fmt.Println("parseSocketData Duration is : ", duration)
 		sockets, err = instance.poller.Poll(duration)
@@ -184,6 +192,8 @@ End:
 }
 
 func (instance *EZMQXTopicHandler) send(requestType string, payload string) EZMQXErrorCode {
+	instance.mutex.Lock()
+	defer instance.mutex.Unlock()
 	result, err := instance.topicClient.Send(requestType, zmq.SNDMORE)
 	if err != nil {
 		Logger.Error("Error while sending requestType", zap.Int("Result: ", result))
@@ -219,12 +229,14 @@ func (instance *EZMQXTopicHandler) removeTopic(topic string) {
 }
 
 func (instance *EZMQXTopicHandler) sendKeepAlive() {
+	instance.mutex.Lock()
 	topicArray := make([]string, instance.topicList.Len())
 	i := 0
 	for topic := instance.topicList.Front(); topic != nil; topic = topic.Next() {
 		topicArray[i] = topic.Value.(string)
 		i++
 	}
+	instance.mutex.Unlock()
 	payload := make(map[string]interface{})
 	payload[PAYLOAD_TOPIC_KA] = topicArray
 	fmt.Println("Payload to send: \n\n", payload)
@@ -240,6 +252,8 @@ func (instance *EZMQXTopicHandler) sendKeepAlive() {
 }
 
 func (instance *EZMQXTopicHandler) terminateHandler() {
+	instance.mutex.Lock()
+	defer instance.mutex.Unlock()
 	if false == instance.initialized.Load() {
 		return
 	}
@@ -278,6 +292,7 @@ func (instance *EZMQXTopicHandler) terminateHandler() {
 	instance.poller = nil
 	instance.topicServer = nil
 	instance.topicClient = nil
+	instance.topicList.Init()
 	var interval int64 = -1
 	instance.keepAliveInterval.Store(interval)
 	instance.isKeepAliveStarted.Store(false)

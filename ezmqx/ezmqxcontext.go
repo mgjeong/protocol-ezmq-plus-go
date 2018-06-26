@@ -28,6 +28,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -45,11 +46,15 @@ type EZMQXContext struct {
 	amlRepDic   map[string]*aml.Representation
 	usedPorts   map[int]bool
 	ports       map[int]int
+	mutex       *sync.Mutex
 }
 
 var ctxInstance *EZMQXContext
+var contextMutex = &sync.Mutex{}
 
 func getContextInstance() *EZMQXContext {
+	contextMutex.Lock()
+	defer contextMutex.Unlock()
 	if nil == ctxInstance {
 		ctxInstance = &EZMQXContext{}
 		ctxInstance.initialized.Store(false)
@@ -57,11 +62,14 @@ func getContextInstance() *EZMQXContext {
 		ctxInstance.amlRepDic = make(map[string]*aml.Representation)
 		ctxInstance.usedPorts = make(map[int]bool)
 		ctxInstance.ports = make(map[int]int)
+		ctxInstance.mutex = &sync.Mutex{}
 	}
 	return ctxInstance
 }
 
 func (cxtInstance *EZMQXContext) assignDynamicPort() (int, EZMQXErrorCode) {
+	ctxInstance.mutex.Lock()
+	defer ctxInstance.mutex.Unlock()
 	port := 0
 	for {
 		if cxtInstance.numOfPort >= LOCAL_PORT_MAX {
@@ -85,6 +93,8 @@ func (cxtInstance *EZMQXContext) assignDynamicPort() (int, EZMQXErrorCode) {
 }
 
 func (contextInstance *EZMQXContext) releaseDynamicPort(port int) EZMQXErrorCode {
+	ctxInstance.mutex.Lock()
+	defer ctxInstance.mutex.Unlock()
 	if false == contextInstance.usedPorts[port] {
 		return EZMQX_RELEASE_WRONG_PORT
 	}
@@ -364,6 +374,8 @@ func (contextInstance *EZMQXContext) initializeStandAloneMode(useTns bool, tnsAd
 }
 
 func (cxtInstance *EZMQXContext) getAmlRep(amlModelId string) (*aml.Representation, EZMQXErrorCode) {
+	ctxInstance.mutex.Lock()
+	defer ctxInstance.mutex.Unlock()
 	rep := cxtInstance.amlRepDic[amlModelId]
 	if nil == rep {
 		Logger.Error("No representation found for model ID")
@@ -374,6 +386,8 @@ func (cxtInstance *EZMQXContext) getAmlRep(amlModelId string) (*aml.Representati
 
 func (cxtInstance *EZMQXContext) addAmlRep(amlFilePath list.List) (*list.List, EZMQXErrorCode) {
 	modelId := list.New()
+	ctxInstance.mutex.Lock()
+	defer ctxInstance.mutex.Unlock()
 	for filePath := amlFilePath.Front(); filePath != nil; filePath = filePath.Next() {
 		repObject, err := aml.CreateRepresentation(filePath.Value.(string))
 		if err != aml.AML_OK {

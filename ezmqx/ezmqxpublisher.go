@@ -27,6 +27,7 @@ import (
 	"net/http"
 	"sync/atomic"
 
+	"sync"
 	"time"
 )
 
@@ -37,12 +38,14 @@ type EZMQXPublisher struct {
 	topicHandler  *EZMQXTopicHandler
 	localPort     int
 	terminated    atomic.Value
+	mutex         *sync.Mutex
 }
 
 func getPublisher() *EZMQXPublisher {
 	var instance *EZMQXPublisher
 	instance = &EZMQXPublisher{}
 	instance.context = getContextInstance()
+	instance.mutex = &sync.Mutex{}
 	return instance
 }
 
@@ -208,6 +211,8 @@ func (instance *EZMQXPublisher) unRegisterTopic(topic *EZMQXTopic) EZMQXErrorCod
 }
 
 func (instance *EZMQXPublisher) terminate() EZMQXErrorCode {
+	instance.mutex.Lock()
+	defer instance.mutex.Unlock()
 	if true == instance.terminated.Load() {
 		Logger.Error("Publisher already terminated")
 		return EZMQX_TERMINATED

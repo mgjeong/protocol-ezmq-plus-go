@@ -26,6 +26,7 @@ import (
 	"go/ezmq"
 	"io/ioutil"
 	"net/http"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -39,6 +40,7 @@ type EZMQXSubscriber struct {
 	amlRepDic      map[string]*aml.Representation
 	terminated     atomic.Value
 	internalCB     EZMQXSubCB
+	mutex          *sync.Mutex
 }
 
 func getEZMQXSubscriber() *EZMQXSubscriber {
@@ -49,6 +51,7 @@ func getEZMQXSubscriber() *EZMQXSubscriber {
 	instance.amlRepDic = make(map[string]*aml.Representation)
 	instance.terminated.Store(false)
 	instance.ezmqSubscriber = nil
+	instance.mutex = &sync.Mutex{}
 	return instance
 }
 
@@ -220,6 +223,8 @@ func (instance *EZMQXSubscriber) storeTopics(topics list.List) EZMQXErrorCode {
 }
 
 func (instance *EZMQXSubscriber) terminate() EZMQXErrorCode {
+	instance.mutex.Lock()
+	defer instance.mutex.Unlock()
 	if true == instance.terminated.Load() {
 		return EZMQX_TERMINATED
 	}

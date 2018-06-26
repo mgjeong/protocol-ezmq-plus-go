@@ -21,6 +21,7 @@ package ezmqx
 import (
 	"container/list"
 	"math/rand"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -29,17 +30,22 @@ import (
 type EZMQXConfig struct {
 	context     *EZMQXContext
 	initialized atomic.Value
+	mutex       *sync.Mutex
 }
 
 var configInstance *EZMQXConfig
+var configMutex = &sync.Mutex{}
 
 // Get EZMQX Config instance.
 func GetConfigInstance() *EZMQXConfig {
+	configMutex.Lock()
+	defer configMutex.Unlock()
 	if nil == configInstance {
 		configInstance = &EZMQXConfig{}
 		configInstance.context = getContextInstance()
 		configInstance.initialized.Store(false)
 		rand.Seed(time.Now().UnixNano())
+		configInstance.mutex = &sync.Mutex{}
 		InitLogger()
 	}
 	return configInstance
@@ -48,6 +54,8 @@ func GetConfigInstance() *EZMQXConfig {
 // Start/Configure EZMQX in docker mode.
 // It works with Pharos system. In DockerMode, stack automatically use Tns service.
 func (configInstance *EZMQXConfig) StartDockerMode() EZMQXErrorCode {
+	configInstance.mutex.Lock()
+	defer configInstance.mutex.Unlock()
 	if true == configInstance.initialized.Load() {
 		Logger.Debug("Already started")
 		return EZMQX_INITIALIZED
@@ -65,6 +73,8 @@ func (configInstance *EZMQXConfig) StartDockerMode() EZMQXErrorCode {
 // Start/Configure EZMQX in stand-alone mode.
 // It works without pharos system.
 func (configInstance *EZMQXConfig) StartStandAloneMode(useTns bool, tnsAddr string) EZMQXErrorCode {
+	configInstance.mutex.Lock()
+	defer configInstance.mutex.Unlock()
 	if true == configInstance.initialized.Load() {
 		Logger.Debug("Already started")
 		return EZMQX_INITIALIZED
@@ -81,6 +91,8 @@ func (configInstance *EZMQXConfig) StartStandAloneMode(useTns bool, tnsAddr stri
 
 // Add aml model file for publish or subscribe AML data.
 func (configInstance *EZMQXConfig) AddAmlModel(amlFilePath list.List) (*list.List, EZMQXErrorCode) {
+	configInstance.mutex.Lock()
+	defer configInstance.mutex.Unlock()
 	if false == configInstance.initialized.Load() {
 		Logger.Error("Not initialized")
 		return nil, EZMQX_NOT_INITIALIZED
@@ -90,6 +102,8 @@ func (configInstance *EZMQXConfig) AddAmlModel(amlFilePath list.List) (*list.Lis
 
 // Reset/Terminate EZMQX stack.
 func (configInstance *EZMQXConfig) Reset() EZMQXErrorCode {
+	configInstance.mutex.Lock()
+	defer configInstance.mutex.Unlock()
 	if false == configInstance.initialized.Load() {
 		Logger.Error("Not initialized")
 		return EZMQX_NOT_INITIALIZED

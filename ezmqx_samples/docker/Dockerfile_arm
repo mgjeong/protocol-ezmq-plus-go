@@ -1,0 +1,8 @@
+FROM arm32v7/ubuntu:16.04
+MAINTAINER jay.sharma@samsung.com
+
+COPY  ezmqx_samples /ezmqx_samples
+COPY  ezmqx_extlibs /ezmqx_extlibs
+COPY run.sh run.sh
+CMD ["./run.sh", "arg1", "arg2"]
+

@@ -1,0 +1,1459 @@
+use 'godoc cmd/go/ezmqx' for documentation on the go/ezmqx command 
+
+<!--
+	Copyright 2009 The Go Authors. All rights reserved.
+	Use of this source code is governed by a BSD-style
+	license that can be found in the LICENSE file.
+-->
+<!--
+	Note: Static (i.e., not template-generated) href and id
+	attributes start with "pkg-" to make it impossible for
+	them to conflict with generated attributes (some of which
+	correspond to Go identifiers).
+-->
+
+	<script type='text/javascript'>
+	document.ANALYSIS_DATA = ;
+	document.CALLGRAPH = ;
+	</script>
+
+	
+		
+		<div id="short-nav">
+			<dl>
+			<dd><code>import "go/ezmqx"</code></dd>
+			</dl>
+			<dl>
+			<dd><a href="#pkg-overview" class="overviewLink">Overview</a></dd>
+			<dd><a href="#pkg-index" class="indexLink">Index</a></dd>
+			
+			
+			</dl>
+		</div>
+		<!-- The package's Name is printed as title by the top-level template -->
+		<div id="pkg-overview" class="toggleVisible">
+			<div class="collapsed">
+				<h2 class="toggleButton" title="Click to show Overview section">Overview ▹</h2>
+			</div>
+			<div class="expanded">
+				<h2 class="toggleButton" title="Click to hide Overview section">Overview ▾</h2>
+				<p>
+ezmqx package which provides simplified APIs for publisher and subscriber.
+</p>
+
+			</div>
+		</div>
+		
+
+		<div id="pkg-index" class="toggleVisible">
+		<div class="collapsed">
+			<h2 class="toggleButton" title="Click to show Index section">Index ▹</h2>
+		</div>
+		<div class="expanded">
+			<h2 class="toggleButton" title="Click to hide Index section">Index ▾</h2>
+
+		<!-- Table of contents for API; must be named manual-nav to turn off auto nav. -->
+			<div id="manual-nav">
+			<dl>
+			
+				<dd><a href="#pkg-constants">Constants</a></dd>
+			
+			
+				<dd><a href="#pkg-variables">Variables</a></dd>
+			
+			
+				
+				<dd><a href="#InitLogger">func InitLogger()</a></dd>
+			
+			
+				
+				<dd><a href="#EZMQXAMLPublisher">type EZMQXAMLPublisher</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetPublisher">func GetPublisher(topic string, modelInfo EZMQXAmlModelInfo, modelId string, optionalPort int) (*EZMQXAMLPublisher, EZMQXErrorCode)</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLPublisher.GetTopic">func (instance *EZMQXAMLPublisher) GetTopic() (*EZMQXTopic, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLPublisher.IsTerminated">func (instance *EZMQXAMLPublisher) IsTerminated() (bool, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLPublisher.Publish">func (instance *EZMQXAMLPublisher) Publish(object *aml.AMLObject) EZMQXErrorCode</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLPublisher.Terminate">func (instance *EZMQXAMLPublisher) Terminate() EZMQXErrorCode</a></dd>
+				
+			
+				
+				<dd><a href="#EZMQXAMLSubscriber">type EZMQXAMLSubscriber</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetAMLDockerSubscriber">func GetAMLDockerSubscriber(topic string, isHierarchical bool, subCallback EZMQXAmlSubCB, errorCallback EZMQXAmlErrorCB) (*EZMQXAMLSubscriber, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetAMLStandAloneSubscriber">func GetAMLStandAloneSubscriber(topic EZMQXTopic, subCallback EZMQXAmlSubCB, errorCallback EZMQXAmlErrorCB) (*EZMQXAMLSubscriber, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetAMLStandAloneSubscriber1">func GetAMLStandAloneSubscriber1(topics list.List, subCallback EZMQXAmlSubCB, errorCallback EZMQXAmlErrorCB) (*EZMQXAMLSubscriber, EZMQXErrorCode)</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLSubscriber.GetTopics">func (instance *EZMQXAMLSubscriber) GetTopics() (*list.List, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLSubscriber.IsTerminated">func (instance *EZMQXAMLSubscriber) IsTerminated() (bool, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLSubscriber.Terminate">func (instance *EZMQXAMLSubscriber) Terminate() EZMQXErrorCode</a></dd>
+				
+			
+				
+				<dd><a href="#EZMQXAmlErrorCB">type EZMQXAmlErrorCB</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXAmlModelInfo">type EZMQXAmlModelInfo</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXAmlSubCB">type EZMQXAmlSubCB</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXConfig">type EZMQXConfig</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetConfigInstance">func GetConfigInstance() *EZMQXConfig</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXConfig.AddAmlModel">func (configInstance *EZMQXConfig) AddAmlModel(amlFilePath list.List) (*list.List, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXConfig.Reset">func (configInstance *EZMQXConfig) Reset() EZMQXErrorCode</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXConfig.StartDockerMode">func (configInstance *EZMQXConfig) StartDockerMode() EZMQXErrorCode</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXConfig.StartStandAloneMode">func (configInstance *EZMQXConfig) StartStandAloneMode(useTns bool, tnsAddr string) EZMQXErrorCode</a></dd>
+				
+			
+				
+				<dd><a href="#EZMQXContext">type EZMQXContext</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXEndpoint">type EZMQXEndpoint</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetEZMQXEndPoint">func GetEZMQXEndPoint(address string) *EZMQXEndpoint</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetEZMQXEndPoint1">func GetEZMQXEndPoint1(address string, port int) *EZMQXEndpoint</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXEndpoint.GetAddr">func (endpoint *EZMQXEndpoint) GetAddr() string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXEndpoint.GetPort">func (endpoint *EZMQXEndpoint) GetPort() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXEndpoint.ToString">func (endpoint *EZMQXEndpoint) ToString() string</a></dd>
+				
+			
+				
+				<dd><a href="#EZMQXErrorCode">type EZMQXErrorCode</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXPublisher">type EZMQXPublisher</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXSubCB">type EZMQXSubCB</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXSubscriber">type EZMQXSubscriber</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXTopic">type EZMQXTopic</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetEZMQXTopic">func GetEZMQXTopic(name string, dataModel string, endPoint *EZMQXEndpoint) *EZMQXTopic</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXTopic.GetDataModel">func (topic *EZMQXTopic) GetDataModel() string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXTopic.GetEndPoint">func (topic *EZMQXTopic) GetEndPoint() *EZMQXEndpoint</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXTopic.GetName">func (topic *EZMQXTopic) GetName() string</a></dd>
+				
+			
+				
+				<dd><a href="#EZMQXTopicDiscovery">type EZMQXTopicDiscovery</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetEZMQXTopicDiscovery">func GetEZMQXTopicDiscovery() (*EZMQXTopicDiscovery, EZMQXErrorCode)</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXTopicDiscovery.HierarchicalQuery">func (instance *EZMQXTopicDiscovery) HierarchicalQuery(topic string) (*list.List, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXTopicDiscovery.Query">func (instance *EZMQXTopicDiscovery) Query(topic string) (*EZMQXTopic, EZMQXErrorCode)</a></dd>
+				
+			
+				
+				<dd><a href="#EZMQXTopicHandler">type EZMQXTopicHandler</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXXMLSubscriber">type EZMQXXMLSubscriber</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetXMLDockerSubscriber">func GetXMLDockerSubscriber(topic string, isHierarchical bool, subCallback EZMQXXmlSubCB, errorCallback EZMQXXmlErrorCB) (*EZMQXXMLSubscriber, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetXMLStandAloneSubscriber">func GetXMLStandAloneSubscriber(topic EZMQXTopic, subCallback EZMQXXmlSubCB, errorCallback EZMQXXmlErrorCB) (*EZMQXXMLSubscriber, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetXMLStandAloneSubscriber1">func GetXMLStandAloneSubscriber1(topics list.List, subCallback EZMQXXmlSubCB, errorCallback EZMQXXmlErrorCB) (*EZMQXXMLSubscriber, EZMQXErrorCode)</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXXMLSubscriber.GetTopics">func (instance *EZMQXXMLSubscriber) GetTopics() (*list.List, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXXMLSubscriber.IsTerminated">func (instance *EZMQXXMLSubscriber) IsTerminated() (bool, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXXMLSubscriber.Terminate">func (instance *EZMQXXMLSubscriber) Terminate() EZMQXErrorCode</a></dd>
+				
+			
+				
+				<dd><a href="#EZMQXXmlErrorCB">type EZMQXXmlErrorCB</a></dd>
+				
+				
+			
+				
+				<dd><a href="#EZMQXXmlSubCB">type EZMQXXmlSubCB</a></dd>
+				
+				
+			
+			
+			</dl>
+			</div><!-- #manual-nav -->
+
+		
+
+		
+			<h4>Package files</h4>
+			<p>
+			<span style="font-size:90%">
+			
+				<a href="/src/go/ezmqx/ezmqxamlmodelinfo.go">ezmqxamlmodelinfo.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxamlpublisher.go">ezmqxamlpublisher.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxamlsubscriber.go">ezmqxamlsubscriber.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxconfig.go">ezmqxconfig.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxcontext.go">ezmqxcontext.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxendpoint.go">ezmqxendpoint.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxerrorcode.go">ezmqxerrorcode.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxlogger_release.go">ezmqxlogger_release.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxpublisher.go">ezmqxpublisher.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxrestutils.go">ezmqxrestutils.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxsubscriber.go">ezmqxsubscriber.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxtopic.go">ezmqxtopic.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxtopicdiscovery.go">ezmqxtopicdiscovery.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxtopichandler.go">ezmqxtopichandler.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxutils.go">ezmqxutils.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxxmlsubscriber.go">ezmqxxmlsubscriber.go</a>
+			
+			</span>
+			</p>
+		
+		</div><!-- .expanded -->
+		</div><!-- #pkg-index -->
+
+		<div id="pkg-callgraph" class="toggle" style="display: none">
+		<div class="collapsed">
+			<h2 class="toggleButton" title="Click to show Internal Call Graph section">Internal call graph ▹</h2>
+		</div> <!-- .expanded -->
+		<div class="expanded">
+			<h2 class="toggleButton" title="Click to hide Internal Call Graph section">Internal call graph ▾</h2>
+			<p>
+			  In the call graph viewer below, each node
+			  is a function belonging to this package
+			  and its children are the functions it
+			  calls&mdash;perhaps dynamically.
+			</p>
+			<p>
+			  The root nodes are the entry points of the
+			  package: functions that may be called from
+			  outside the package.
+			  There may be non-exported or anonymous
+			  functions among them if they are called
+			  dynamically from another package.
+			</p>
+			<p>
+			  Click a node to visit that function's source code.
+			  From there you can visit its callers by
+			  clicking its declaring <code>func</code>
+			  token.
+			</p>
+			<p>
+			  Functions may be omitted if they were
+			  determined to be unreachable in the
+			  particular programs or tests that were
+			  analyzed.
+			</p>
+			<!-- Zero means show all package entry points. -->
+			<ul style="margin-left: 0.5in" id="callgraph-0" class="treeview"></ul>
+		</div>
+		</div> <!-- #pkg-callgraph -->
+
+		
+			<h2 id="pkg-constants">Constants</h2>
+			
+				<p>
+Constants represents AML model info.
+</p>
+
+				<pre>const (
+    <span id="AML_MODEL_ID">AML_MODEL_ID</span>  = 0
+    <span id="AML_FILE_PATH">AML_FILE_PATH</span> = 1
+)</pre>
+			
+				<p>
+Constants represents EZMQX error codes.
+</p>
+
+				<pre>const (
+    <span id="EZMQX_OK">EZMQX_OK</span>                  = 0
+    <span id="EZMQX_INVALID_PARAM">EZMQX_INVALID_PARAM</span>       = 1
+    <span id="EZMQX_INITIALIZED">EZMQX_INITIALIZED</span>         = 2
+    <span id="EZMQX_NOT_INITIALIZED">EZMQX_NOT_INITIALIZED</span>     = 3
+    <span id="EZMQX_TERMINATED">EZMQX_TERMINATED</span>          = 4
+    <span id="EZMQX_UNKNOWN_STATE">EZMQX_UNKNOWN_STATE</span>       = 5
+    <span id="EZMQX_SERVICE_UNAVAILABLE">EZMQX_SERVICE_UNAVAILABLE</span> = 6
+    <span id="EZMQX_INVALID_TOPIC">EZMQX_INVALID_TOPIC</span>       = 7
+    <span id="EZMQX_DUPLICATED_TOPIC">EZMQX_DUPLICATED_TOPIC</span>    = 8
+    <span id="EZMQX_UNKNOWN_TOPIC">EZMQX_UNKNOWN_TOPIC</span>       = 9
+    <span id="EZMQX_INVALID_ENDPOINT">EZMQX_INVALID_ENDPOINT</span>    = 10
+    <span id="EZMQX_BROKEN_PAYLOAD">EZMQX_BROKEN_PAYLOAD</span>      = 11
+    <span id="EZMQX_REST_ERROR">EZMQX_REST_ERROR</span>          = 12
+    <span id="EZMQX_MAXIMUM_PORT_EXCEED">EZMQX_MAXIMUM_PORT_EXCEED</span> = 13
+    <span id="EZMQX_RELEASE_WRONG_PORT">EZMQX_RELEASE_WRONG_PORT</span>  = 14
+    <span id="EZMQX_NO_TOPIC_MATCHED">EZMQX_NO_TOPIC_MATCHED</span>    = 15
+    <span id="EZMQX_TNS_NOT_AVAILABLE">EZMQX_TNS_NOT_AVAILABLE</span>   = 16
+    <span id="EZMQX_UNKNOWN_AML_MODEL">EZMQX_UNKNOWN_AML_MODEL</span>   = 17
+    <span id="EZMQX_INVALID_AML_MODEL">EZMQX_INVALID_AML_MODEL</span>   = 18
+    <span id="EZMQX_SESSION_UNAVAILABLE">EZMQX_SESSION_UNAVAILABLE</span> = 19
+)</pre>
+			
+				
+				<pre>const <span id="API_APPS">API_APPS</span> = &#34;/management/apps&#34;</pre>
+			
+				
+				<pre>const <span id="API_CONFIG">API_CONFIG</span> = &#34;/management/device/configuration&#34;</pre>
+			
+				
+				<pre>const <span id="API_DETAIL">API_DETAIL</span> = &#34;/management/detail&#34;</pre>
+			
+				
+				<pre>const <span id="APPLICATION_JSON">APPLICATION_JSON</span> = &#34;application/json&#34;</pre>
+			
+				
+				<pre>const <span id="APPS_EXIT_CODE">APPS_EXIT_CODE</span> = &#34;exitcode&#34;</pre>
+			
+				
+				<pre>const <span id="APPS_ID">APPS_ID</span> = &#34;id&#34;</pre>
+			
+				
+				<pre>const <span id="APPS_PROPS">APPS_PROPS</span> = &#34;apps&#34;</pre>
+			
+				
+				<pre>const <span id="APPS_STATE">APPS_STATE</span> = &#34;state&#34;</pre>
+			
+				
+				<pre>const <span id="APPS_STATE_RUNNING">APPS_STATE_RUNNING</span> = &#34;running&#34;</pre>
+			
+				
+				<pre>const <span id="APPS_STATUS">APPS_STATUS</span> = &#34;status&#34;</pre>
+			
+				
+				<pre>const <span id="COLON">COLON</span> = &#34;:&#34;</pre>
+			
+				
+				<pre>const <span id="CONF_NODE_ADDR">CONF_NODE_ADDR</span> = &#34;nodeaddress&#34;</pre>
+			
+				<p>
+JSON Keys
+</p>
+
+				<pre>const <span id="CONF_PROPS">CONF_PROPS</span> = &#34;properties&#34;</pre>
+			
+				
+				<pre>const <span id="CONF_REMOTE_ADDR">CONF_REMOTE_ADDR</span> = &#34;anchoraddress&#34;</pre>
+			
+				
+				<pre>const <span id="CONNECTION_TIMEOUT">CONNECTION_TIMEOUT</span> = 5</pre>
+			
+				
+				<pre>const <span id="DOUBLE_SLASH">DOUBLE_SLASH</span> = &#34;//&#34;</pre>
+			
+				
+				<pre>const <span id="F_DOUBLE_SLASH">F_DOUBLE_SLASH</span> = &#34;//&#34;</pre>
+			
+				
+				<pre>const <span id="F_SLASH">F_SLASH</span> = &#34;/&#34;</pre>
+			
+				<p>
+HostName file path
+</p>
+
+				<pre>const <span id="HOST_NAME_FILE_PATH">HOST_NAME_FILE_PATH</span> = &#34;/etc/hostname&#34;</pre>
+			
+				
+				<pre>const <span id="HTTP_CREATED">HTTP_CREATED</span> = 201</pre>
+			
+				<p>
+HTTP status codes
+</p>
+
+				<pre>const <span id="HTTP_OK">HTTP_OK</span> = 200</pre>
+			
+				
+				<pre>const <span id="HTTP_PREFIX">HTTP_PREFIX</span> = &#34;http://&#34;</pre>
+			
+				
+				<pre>const <span id="INPROC_PREFIX">INPROC_PREFIX</span> = &#34;inproc://topicHandler&#34;</pre>
+			
+				
+				<pre>const <span id="KEEPALIVE">KEEPALIVE</span> = &#34;keepalive&#34;</pre>
+			
+				
+				<pre>const <span id="LOCAL_HOST">LOCAL_HOST</span> = &#34;localhost&#34;</pre>
+			
+				
+				<pre>const <span id="LOCAL_PORT_MAX">LOCAL_PORT_MAX</span> = 100</pre>
+			
+				
+				<pre>const <span id="LOCAL_PORT_START">LOCAL_PORT_START</span> = 4000</pre>
+			
+				<p>
+URLs
+</p>
+
+				<pre>const <span id="NODE">NODE</span> = &#34;http://172.17.0.1:48098&#34;</pre>
+			
+				
+				<pre>const <span id="PAYLOAD_DATAMODEL">PAYLOAD_DATAMODEL</span> = &#34;datamodel&#34;</pre>
+			
+				
+				<pre>const <span id="PAYLOAD_ENDPOINT">PAYLOAD_ENDPOINT</span> = &#34;endpoint&#34;</pre>
+			
+				
+				<pre>const <span id="PAYLOAD_KEEPALIVE_INTERVAL">PAYLOAD_KEEPALIVE_INTERVAL</span> = &#34;ka_interval&#34;</pre>
+			
+				
+				<pre>const <span id="PAYLOAD_NAME">PAYLOAD_NAME</span> = &#34;name&#34;</pre>
+			
+				
+				<pre>const <span id="PAYLOAD_OPTION">PAYLOAD_OPTION</span> = &#34;indentation&#34;</pre>
+			
+				
+				<pre>const <span id="PAYLOAD_TOPIC">PAYLOAD_TOPIC</span> = &#34;topic&#34;</pre>
+			
+				
+				<pre>const <span id="PAYLOAD_TOPICS">PAYLOAD_TOPICS</span> = &#34;topics&#34;</pre>
+			
+				
+				<pre>const <span id="PAYLOAD_TOPIC_KA">PAYLOAD_TOPIC_KA</span> = &#34;topic_names&#34;</pre>
+			
+				
+				<pre>const <span id="PORTS_PRIVATE">PORTS_PRIVATE</span> = &#34;PrivatePort&#34;</pre>
+			
+				
+				<pre>const <span id="PORTS_PUBLIC">PORTS_PUBLIC</span> = &#34;PublicPort&#34;</pre>
+			
+				
+				<pre>const <span id="PREFIX">PREFIX</span> = &#34;/api/v1&#34;</pre>
+			
+				
+				<pre>const <span id="QUERY_FALSE">QUERY_FALSE</span> = &#34;no&#34;</pre>
+			
+				
+				<pre>const <span id="QUERY_HIERARCHICAL">QUERY_HIERARCHICAL</span> = &#34;&amp;hierarchical=&#34;</pre>
+			
+				
+				<pre>const <span id="QUERY_NAME">QUERY_NAME</span> = &#34;name=&#34;</pre>
+			
+				
+				<pre>const <span id="QUERY_TRUE">QUERY_TRUE</span> = &#34;yes&#34;</pre>
+			
+				
+				<pre>const <span id="QUESTION_MARK">QUESTION_MARK</span> = &#34;?&#34;</pre>
+			
+				
+				<pre>const <span id="REGISTER">REGISTER</span> = &#34;register&#34;</pre>
+			
+				
+				<pre>const <span id="SERVICES_CON_ID">SERVICES_CON_ID</span> = &#34;cid&#34;</pre>
+			
+				
+				<pre>const <span id="SERVICES_CON_NAME">SERVICES_CON_NAME</span> = &#34;name&#34;</pre>
+			
+				
+				<pre>const <span id="SERVICES_CON_PORTS">SERVICES_CON_PORTS</span> = &#34;ports&#34;</pre>
+			
+				
+				<pre>const <span id="SERVICES_PROPS">SERVICES_PROPS</span> = &#34;services&#34;</pre>
+			
+				
+				<pre>const <span id="SHUTDOWN">SHUTDOWN</span> = &#34;shutdown&#34;</pre>
+			
+				<p>
+Strings
+</p>
+
+				<pre>const <span id="SLASH">SLASH</span> = &#34;/&#34;</pre>
+			
+				
+				<pre>const <span id="TNS_KEEP_ALIVE">TNS_KEEP_ALIVE</span> = &#34;/tns/keepalive&#34;</pre>
+			
+				
+				<pre>const <span id="TNS_KNOWN_PORT">TNS_KNOWN_PORT</span> = &#34;48323&#34;</pre>
+			
+				
+				<pre>const <span id="TOPIC">TOPIC</span> = &#34;/tns/topic&#34;</pre>
+			
+				
+				<pre>const <span id="TOPIC_PATTERN">TOPIC_PATTERN</span> = &#34;^(/)[a-zA-Z0-9-_./]+$&#34;</pre>
+			
+				
+				<pre>const <span id="UNREGISTER">UNREGISTER</span> = &#34;unregister&#34;</pre>
+			
+		
+		
+			<h2 id="pkg-variables">Variables</h2>
+			
+				
+				<pre>var <span id="Logger">Logger</span> *<a href="/pkg/go.uber.org/zap/">zap</a>.<a href="/pkg/go.uber.org/zap/#Logger">Logger</a></pre>
+			
+		
+		
+			
+			
+			<h2 id="InitLogger">func <a href="/src/target/ezmqxlogger_release.go?s=96:113#L3">InitLogger</a>
+				<a class="permalink" href="#InitLogger">&#xb6;</a>
+			</h2>
+			<pre>func InitLogger()</pre>
+			
+			
+			
+
+		
+		
+			
+			
+			<h2 id="EZMQXAMLPublisher">type <a href="/src/target/ezmqxamlpublisher.go?s=887:988#L17">EZMQXAMLPublisher</a>
+				<a class="permalink" href="#EZMQXAMLPublisher">&#xb6;</a>
+			</h2>
+			<p>
+Structure represents EZMQX publisher.
+</p>
+
+			<pre>type EZMQXAMLPublisher struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="GetPublisher">func <a href="/src/target/ezmqxamlpublisher.go?s=1023:1154#L23">GetPublisher</a>
+					<a class="permalink" href="#GetPublisher">&#xb6;</a>
+				</h3>
+				<pre>func GetPublisher(topic <a href="/pkg/builtin/#string">string</a>, modelInfo <a href="#EZMQXAmlModelInfo">EZMQXAmlModelInfo</a>, modelId <a href="/pkg/builtin/#string">string</a>, optionalPort <a href="/pkg/builtin/#int">int</a>) (*<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get EZMQX publisher instance.
+</p>
+
+				
+				
+			
+
+			
+				
+				<h3 id="EZMQXAMLPublisher.GetTopic">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=3098:3173#L90">GetTopic</a>
+					<a class="permalink" href="#EZMQXAMLPublisher.GetTopic">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>) GetTopic() (*<a href="#EZMQXTopic">EZMQXTopic</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get instance of Topic that used on this publisher.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXAMLPublisher.IsTerminated">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=2828:2900#L81">IsTerminated</a>
+					<a class="permalink" href="#EZMQXAMLPublisher.IsTerminated">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>) IsTerminated() (<a href="/pkg/builtin/#bool">bool</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Check whether publisher is terminated or not.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXAMLPublisher.Publish">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=1676:1756#L41">Publish</a>
+					<a class="permalink" href="#EZMQXAMLPublisher.Publish">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>) Publish(object *<a href="/pkg/go/aml/">aml</a>.<a href="/pkg/go/aml/#AMLObject">AMLObject</a>) <a href="#EZMQXErrorCode">EZMQXErrorCode</a></pre>
+				<p>
+Publish AMLObject on the socket for subscribers.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXAMLPublisher.Terminate">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=2594:2655#L72">Terminate</a>
+					<a class="permalink" href="#EZMQXAMLPublisher.Terminate">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>) Terminate() <a href="#EZMQXErrorCode">EZMQXErrorCode</a></pre>
+				<p>
+Terminate EZMQX publisher.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="EZMQXAMLSubscriber">type <a href="/src/target/ezmqxamlsubscriber.go?s=1160:1286#L24">EZMQXAMLSubscriber</a>
+				<a class="permalink" href="#EZMQXAMLSubscriber">&#xb6;</a>
+			</h2>
+			<p>
+Structure represents EZMQX AML subscriber.
+</p>
+
+			<pre>type EZMQXAMLSubscriber struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="GetAMLDockerSubscriber">func <a href="/src/target/ezmqxamlsubscriber.go?s=1392:1550#L32">GetAMLDockerSubscriber</a>
+					<a class="permalink" href="#GetAMLDockerSubscriber">&#xb6;</a>
+				</h3>
+				<pre>func GetAMLDockerSubscriber(topic <a href="/pkg/builtin/#string">string</a>, isHierarchical <a href="/pkg/builtin/#bool">bool</a>, subCallback <a href="#EZMQXAmlSubCB">EZMQXAmlSubCB</a>, errorCallback <a href="#EZMQXAmlErrorCB">EZMQXAmlErrorCB</a>) (*<a href="#EZMQXAMLSubscriber">EZMQXAMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get AML subscriber instance for given topic.
+It will work, if EZMQX is configured in docker mode.
+</p>
+
+				
+				
+			
+				
+				<h3 id="GetAMLStandAloneSubscriber">func <a href="/src/target/ezmqxamlsubscriber.go?s=1941:2086#L44">GetAMLStandAloneSubscriber</a>
+					<a class="permalink" href="#GetAMLStandAloneSubscriber">&#xb6;</a>
+				</h3>
+				<pre>func GetAMLStandAloneSubscriber(topic <a href="#EZMQXTopic">EZMQXTopic</a>, subCallback <a href="#EZMQXAmlSubCB">EZMQXAmlSubCB</a>, errorCallback <a href="#EZMQXAmlErrorCB">EZMQXAmlErrorCB</a>) (*<a href="#EZMQXAMLSubscriber">EZMQXAMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get AML subscriber instance for given topic.
+It will work, if EZMQX is configured in standalone mode.
+</p>
+
+				
+				
+			
+				
+				<h3 id="GetAMLStandAloneSubscriber1">func <a href="/src/target/ezmqxamlsubscriber.go?s=2536:2682#L58">GetAMLStandAloneSubscriber1</a>
+					<a class="permalink" href="#GetAMLStandAloneSubscriber1">&#xb6;</a>
+				</h3>
+				<pre>func GetAMLStandAloneSubscriber1(topics <a href="/pkg/container/list/">list</a>.<a href="/pkg/container/list/#List">List</a>, subCallback <a href="#EZMQXAmlSubCB">EZMQXAmlSubCB</a>, errorCallback <a href="#EZMQXAmlErrorCB">EZMQXAmlErrorCB</a>) (*<a href="#EZMQXAMLSubscriber">EZMQXAMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get AML subscriber instance for given topic list.
+It will work, if EZMQX is configured in standalone mode.
+</p>
+
+				
+				
+			
+
+			
+				
+				<h3 id="EZMQXAMLSubscriber.GetTopics">func (*EZMQXAMLSubscriber) <a href="/src/target/ezmqxamlsubscriber.go?s=3539:3615#L88">GetTopics</a>
+					<a class="permalink" href="#EZMQXAMLSubscriber.GetTopics">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXAMLSubscriber">EZMQXAMLSubscriber</a>) GetTopics() (*<a href="/pkg/container/list/">list</a>.<a href="/pkg/container/list/#List">List</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get list of topics that subscribed by this subscriber.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXAMLSubscriber.IsTerminated">func (*EZMQXAMLSubscriber) <a href="/src/target/ezmqxamlsubscriber.go?s=3260:3333#L79">IsTerminated</a>
+					<a class="permalink" href="#EZMQXAMLSubscriber.IsTerminated">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXAMLSubscriber">EZMQXAMLSubscriber</a>) IsTerminated() (<a href="/pkg/builtin/#bool">bool</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Check whether subscriber is terminated or not.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXAMLSubscriber.Terminate">func (*EZMQXAMLSubscriber) <a href="/src/target/ezmqxamlsubscriber.go?s=2983:3045#L69">Terminate</a>
+					<a class="permalink" href="#EZMQXAMLSubscriber.Terminate">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXAMLSubscriber">EZMQXAMLSubscriber</a>) Terminate() <a href="#EZMQXErrorCode">EZMQXErrorCode</a></pre>
+				<p>
+Terminate EZMQX AML subscriber.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="EZMQXAmlErrorCB">type <a href="/src/target/ezmqxamlsubscriber.go?s=1047:1112#L21">EZMQXAmlErrorCB</a>
+				<a class="permalink" href="#EZMQXAmlErrorCB">&#xb6;</a>
+			</h2>
+			<p>
+Callback to get error for the subscribed topic.
+</p>
+
+			<pre>type EZMQXAmlErrorCB func(topic <a href="/pkg/builtin/#string">string</a>, errorCode <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXAmlModelInfo">type <a href="/src/target/ezmqxamlmodelinfo.go?s=795:821#L10">EZMQXAmlModelInfo</a>
+				<a class="permalink" href="#EZMQXAmlModelInfo">&#xb6;</a>
+			</h2>
+			
+			<pre>type EZMQXAmlModelInfo <a href="/pkg/builtin/#int">int</a></pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXAmlSubCB">type <a href="/src/target/ezmqxamlsubscriber.go?s=932:994#L18">EZMQXAmlSubCB</a>
+				<a class="permalink" href="#EZMQXAmlSubCB">&#xb6;</a>
+			</h2>
+			<p>
+Callback to get all the subscribed events for a specific topic.
+</p>
+
+			<pre>type EZMQXAmlSubCB func(topic <a href="/pkg/builtin/#string">string</a>, amlObject <a href="/pkg/go/aml/">aml</a>.<a href="/pkg/go/aml/#AMLObject">AMLObject</a>)</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXConfig">type <a href="/src/target/ezmqxconfig.go?s=984:1064#L19">EZMQXConfig</a>
+				<a class="permalink" href="#EZMQXConfig">&#xb6;</a>
+			</h2>
+			<p>
+Structure represents EZMQX configuration.
+</p>
+
+			<pre>type EZMQXConfig struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="GetConfigInstance">func <a href="/src/target/ezmqxconfig.go?s=1129:1166#L27">GetConfigInstance</a>
+					<a class="permalink" href="#GetConfigInstance">&#xb6;</a>
+				</h3>
+				<pre>func GetConfigInstance() *<a href="#EZMQXConfig">EZMQXConfig</a></pre>
+				<p>
+Get EZMQX Config instance.
+</p>
+
+				
+				
+			
+
+			
+				
+				<h3 id="EZMQXConfig.AddAmlModel">func (*EZMQXConfig) <a href="/src/target/ezmqxconfig.go?s=2577:2675#L73">AddAmlModel</a>
+					<a class="permalink" href="#EZMQXConfig.AddAmlModel">&#xb6;</a>
+				</h3>
+				<pre>func (configInstance *<a href="#EZMQXConfig">EZMQXConfig</a>) AddAmlModel(amlFilePath <a href="/pkg/container/list/">list</a>.<a href="/pkg/container/list/#List">List</a>) (*<a href="/pkg/container/list/">list</a>.<a href="/pkg/container/list/#List">List</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Add aml model file for publish or subscribe AML data.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXConfig.Reset">func (*EZMQXConfig) <a href="/src/target/ezmqxconfig.go?s=2889:2946#L82">Reset</a>
+					<a class="permalink" href="#EZMQXConfig.Reset">&#xb6;</a>
+				</h3>
+				<pre>func (configInstance *<a href="#EZMQXConfig">EZMQXConfig</a>) Reset() <a href="#EZMQXErrorCode">EZMQXErrorCode</a></pre>
+				<p>
+Reset/Terminate EZMQX stack.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXConfig.StartDockerMode">func (*EZMQXConfig) <a href="/src/target/ezmqxconfig.go?s=1525:1592#L40">StartDockerMode</a>
+					<a class="permalink" href="#EZMQXConfig.StartDockerMode">&#xb6;</a>
+				</h3>
+				<pre>func (configInstance *<a href="#EZMQXConfig">EZMQXConfig</a>) StartDockerMode() <a href="#EZMQXErrorCode">EZMQXErrorCode</a></pre>
+				<p>
+Start/Configure EZMQX in docker mode.
+It works with Pharos system. In DockerMode, stack automatically use Tns service.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXConfig.StartStandAloneMode">func (*EZMQXConfig) <a href="/src/target/ezmqxconfig.go?s=2034:2132#L57">StartStandAloneMode</a>
+					<a class="permalink" href="#EZMQXConfig.StartStandAloneMode">&#xb6;</a>
+				</h3>
+				<pre>func (configInstance *<a href="#EZMQXConfig">EZMQXConfig</a>) StartStandAloneMode(useTns <a href="/pkg/builtin/#bool">bool</a>, tnsAddr <a href="/pkg/builtin/#string">string</a>) <a href="#EZMQXErrorCode">EZMQXErrorCode</a></pre>
+				<p>
+Start/Configure EZMQX in stand-alone mode.
+It works without pharos system.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="EZMQXContext">type <a href="/src/target/ezmqxcontext.go?s=953:1258#L25">EZMQXContext</a>
+				<a class="permalink" href="#EZMQXContext">&#xb6;</a>
+			</h2>
+			
+			<pre>type EZMQXContext struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXEndpoint">type <a href="/src/target/ezmqxendpoint.go?s=869:927#L16">EZMQXEndpoint</a>
+				<a class="permalink" href="#EZMQXEndpoint">&#xb6;</a>
+			</h2>
+			<p>
+Structure represents EZMQX end point.
+</p>
+
+			<pre>type EZMQXEndpoint struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="GetEZMQXEndPoint">func <a href="/src/target/ezmqxendpoint.go?s=1090:1142#L25">GetEZMQXEndPoint</a>
+					<a class="permalink" href="#GetEZMQXEndPoint">&#xb6;</a>
+				</h3>
+				<pre>func GetEZMQXEndPoint(address <a href="/pkg/builtin/#string">string</a>) *<a href="#EZMQXEndpoint">EZMQXEndpoint</a></pre>
+				<p>
+Get EZMQX end point instance for the given address.
+</p>
+<p>
+Example: 127.0.0.0:4545
+If address contains only IP address then port will be initialized to -1.
+</p>
+
+				
+				
+			
+				
+				<h3 id="GetEZMQXEndPoint1">func <a href="/src/target/ezmqxendpoint.go?s=1510:1573#L40">GetEZMQXEndPoint1</a>
+					<a class="permalink" href="#GetEZMQXEndPoint1">&#xb6;</a>
+				</h3>
+				<pre>func GetEZMQXEndPoint1(address <a href="/pkg/builtin/#string">string</a>, port <a href="/pkg/builtin/#int">int</a>) *<a href="#EZMQXEndpoint">EZMQXEndpoint</a></pre>
+				<p>
+Get EZMQX end point instance for the given Ip and port.
+</p>
+
+				
+				
+			
+
+			
+				
+				<h3 id="EZMQXEndpoint.GetAddr">func (*EZMQXEndpoint) <a href="/src/target/ezmqxendpoint.go?s=1733:1780#L49">GetAddr</a>
+					<a class="permalink" href="#EZMQXEndpoint.GetAddr">&#xb6;</a>
+				</h3>
+				<pre>func (endpoint *<a href="#EZMQXEndpoint">EZMQXEndpoint</a>) GetAddr() <a href="/pkg/builtin/#string">string</a></pre>
+				<p>
+Get address of end point.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXEndpoint.GetPort">func (*EZMQXEndpoint) <a href="/src/target/ezmqxendpoint.go?s=1837:1881#L54">GetPort</a>
+					<a class="permalink" href="#EZMQXEndpoint.GetPort">&#xb6;</a>
+				</h3>
+				<pre>func (endpoint *<a href="#EZMQXEndpoint">EZMQXEndpoint</a>) GetPort() <a href="/pkg/builtin/#int">int</a></pre>
+				<p>
+Get port of end point.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXEndpoint.ToString">func (*EZMQXEndpoint) <a href="/src/target/ezmqxendpoint.go?s=1936:1984#L59">ToString</a>
+					<a class="permalink" href="#EZMQXEndpoint.ToString">&#xb6;</a>
+				</h3>
+				<pre>func (endpoint *<a href="#EZMQXEndpoint">EZMQXEndpoint</a>) ToString() <a href="/pkg/builtin/#string">string</a></pre>
+				<p>
+Get endpoint as string.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="EZMQXErrorCode">type <a href="/src/target/ezmqxerrorcode.go?s=795:818#L10">EZMQXErrorCode</a>
+				<a class="permalink" href="#EZMQXErrorCode">&#xb6;</a>
+			</h2>
+			
+			<pre>type EZMQXErrorCode <a href="/pkg/builtin/#int">int</a></pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXPublisher">type <a href="/src/target/ezmqxpublisher.go?s=919:1121#L23">EZMQXPublisher</a>
+				<a class="permalink" href="#EZMQXPublisher">&#xb6;</a>
+			</h2>
+			
+			<pre>type EZMQXPublisher struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXSubCB">type <a href="/src/target/ezmqxsubscriber.go?s=937:997#L23">EZMQXSubCB</a>
+				<a class="permalink" href="#EZMQXSubCB">&#xb6;</a>
+			</h2>
+			
+			<pre>type EZMQXSubCB func(topic <a href="/pkg/builtin/#string">string</a>, ezmqMsg <a href="/pkg/go/ezmq/">ezmq</a>.<a href="/pkg/go/ezmq/#EZMQMessage">EZMQMessage</a>)</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXSubscriber">type <a href="/src/target/ezmqxsubscriber.go?s=999:1227#L25">EZMQXSubscriber</a>
+				<a class="permalink" href="#EZMQXSubscriber">&#xb6;</a>
+			</h2>
+			
+			<pre>type EZMQXSubscriber struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXTopic">type <a href="/src/target/ezmqxtopic.go?s=832:920#L11">EZMQXTopic</a>
+				<a class="permalink" href="#EZMQXTopic">&#xb6;</a>
+			</h2>
+			<p>
+Structure represents EZMQX topic.
+</p>
+
+			<pre>type EZMQXTopic struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="GetEZMQXTopic">func <a href="/src/target/ezmqxtopic.go?s=951:1037#L18">GetEZMQXTopic</a>
+					<a class="permalink" href="#GetEZMQXTopic">&#xb6;</a>
+				</h3>
+				<pre>func GetEZMQXTopic(name <a href="/pkg/builtin/#string">string</a>, dataModel <a href="/pkg/builtin/#string">string</a>, endPoint *<a href="#EZMQXEndpoint">EZMQXEndpoint</a>) *<a href="#EZMQXTopic">EZMQXTopic</a></pre>
+				<p>
+Get EZMQX topic instance.
+</p>
+
+				
+				
+			
+
+			
+				
+				<h3 id="EZMQXTopic.GetDataModel">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1307:1353#L33">GetDataModel</a>
+					<a class="permalink" href="#EZMQXTopic.GetDataModel">&#xb6;</a>
+				</h3>
+				<pre>func (topic *<a href="#EZMQXTopic">EZMQXTopic</a>) GetDataModel() <a href="/pkg/builtin/#string">string</a></pre>
+				<p>
+Get AML data model id.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXTopic.GetEndPoint">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1407:1460#L38">GetEndPoint</a>
+					<a class="permalink" href="#EZMQXTopic.GetEndPoint">&#xb6;</a>
+				</h3>
+				<pre>func (topic *<a href="#EZMQXTopic">EZMQXTopic</a>) GetEndPoint() *<a href="#EZMQXEndpoint">EZMQXEndpoint</a></pre>
+				<p>
+Get EZMQX end point.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXTopic.GetName">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1215:1256#L28">GetName</a>
+					<a class="permalink" href="#EZMQXTopic.GetName">&#xb6;</a>
+				</h3>
+				<pre>func (topic *<a href="#EZMQXTopic">EZMQXTopic</a>) GetName() <a href="/pkg/builtin/#string">string</a></pre>
+				<p>
+Get topic name.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="EZMQXTopicDiscovery">type <a href="/src/target/ezmqxtopicdiscovery.go?s=942:1001#L21">EZMQXTopicDiscovery</a>
+				<a class="permalink" href="#EZMQXTopicDiscovery">&#xb6;</a>
+			</h2>
+			<p>
+Structure represents EZMQX topic discovery.
+</p>
+
+			<pre>type EZMQXTopicDiscovery struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="GetEZMQXTopicDiscovery">func <a href="/src/target/ezmqxtopicdiscovery.go?s=1042:1110#L26">GetEZMQXTopicDiscovery</a>
+					<a class="permalink" href="#GetEZMQXTopicDiscovery">&#xb6;</a>
+				</h3>
+				<pre>func GetEZMQXTopicDiscovery() (*<a href="#EZMQXTopicDiscovery">EZMQXTopicDiscovery</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get EZMQX topic discovery instance.
+</p>
+
+				
+				
+			
+
+			
+				
+				<h3 id="EZMQXTopicDiscovery.HierarchicalQuery">func (*EZMQXTopicDiscovery) <a href="/src/target/ezmqxtopicdiscovery.go?s=1881:1978#L51">HierarchicalQuery</a>
+					<a class="permalink" href="#EZMQXTopicDiscovery.HierarchicalQuery">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXTopicDiscovery">EZMQXTopicDiscovery</a>) HierarchicalQuery(topic <a href="/pkg/builtin/#string">string</a>) (*<a href="/pkg/container/list/">list</a>.<a href="/pkg/container/list/#List">List</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Query the given topic to TNS [Topic name server] server.
+It will send query request with hierarchical option.
+</p>
+<p>
+For example: If topic name is /Topic then in success case TNS will
+return /Topic/A, /Topic/A/B etc.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXTopicDiscovery.Query">func (*EZMQXTopicDiscovery) <a href="/src/target/ezmqxtopicdiscovery.go?s=1408:1494#L38">Query</a>
+					<a class="permalink" href="#EZMQXTopicDiscovery.Query">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXTopicDiscovery">EZMQXTopicDiscovery</a>) Query(topic <a href="/pkg/builtin/#string">string</a>) (*<a href="#EZMQXTopic">EZMQXTopic</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Query the given topic to TNS [Topic name server] server.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="EZMQXTopicHandler">type <a href="/src/target/ezmqxtopichandler.go?s=987:1432#L26">EZMQXTopicHandler</a>
+				<a class="permalink" href="#EZMQXTopicHandler">&#xb6;</a>
+			</h2>
+			
+			<pre>type EZMQXTopicHandler struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXXMLSubscriber">type <a href="/src/target/ezmqxxmlsubscriber.go?s=1148:1274#L24">EZMQXXMLSubscriber</a>
+				<a class="permalink" href="#EZMQXXMLSubscriber">&#xb6;</a>
+			</h2>
+			<p>
+Structure represents EZMQX XML subscriber.
+</p>
+
+			<pre>type EZMQXXMLSubscriber struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="GetXMLDockerSubscriber">func <a href="/src/target/ezmqxxmlsubscriber.go?s=1380:1538#L32">GetXMLDockerSubscriber</a>
+					<a class="permalink" href="#GetXMLDockerSubscriber">&#xb6;</a>
+				</h3>
+				<pre>func GetXMLDockerSubscriber(topic <a href="/pkg/builtin/#string">string</a>, isHierarchical <a href="/pkg/builtin/#bool">bool</a>, subCallback <a href="#EZMQXXmlSubCB">EZMQXXmlSubCB</a>, errorCallback <a href="#EZMQXXmlErrorCB">EZMQXXmlErrorCB</a>) (*<a href="#EZMQXXMLSubscriber">EZMQXXMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get XML subscriber instance for given topic.
+It will work, if EZMQX is configured in docker mode.
+</p>
+
+				
+				
+			
+				
+				<h3 id="GetXMLStandAloneSubscriber">func <a href="/src/target/ezmqxxmlsubscriber.go?s=1929:2074#L44">GetXMLStandAloneSubscriber</a>
+					<a class="permalink" href="#GetXMLStandAloneSubscriber">&#xb6;</a>
+				</h3>
+				<pre>func GetXMLStandAloneSubscriber(topic <a href="#EZMQXTopic">EZMQXTopic</a>, subCallback <a href="#EZMQXXmlSubCB">EZMQXXmlSubCB</a>, errorCallback <a href="#EZMQXXmlErrorCB">EZMQXXmlErrorCB</a>) (*<a href="#EZMQXXMLSubscriber">EZMQXXMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get XML subscriber instance for given topic.
+It will work, if EZMQX is configured in standalone mode.
+</p>
+
+				
+				
+			
+				
+				<h3 id="GetXMLStandAloneSubscriber1">func <a href="/src/target/ezmqxxmlsubscriber.go?s=2524:2670#L58">GetXMLStandAloneSubscriber1</a>
+					<a class="permalink" href="#GetXMLStandAloneSubscriber1">&#xb6;</a>
+				</h3>
+				<pre>func GetXMLStandAloneSubscriber1(topics <a href="/pkg/container/list/">list</a>.<a href="/pkg/container/list/#List">List</a>, subCallback <a href="#EZMQXXmlSubCB">EZMQXXmlSubCB</a>, errorCallback <a href="#EZMQXXmlErrorCB">EZMQXXmlErrorCB</a>) (*<a href="#EZMQXXMLSubscriber">EZMQXXMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get XML subscriber instance for given topic list.
+It will work, if EZMQX is configured in standalone mode.
+</p>
+
+				
+				
+			
+
+			
+				
+				<h3 id="EZMQXXMLSubscriber.GetTopics">func (*EZMQXXMLSubscriber) <a href="/src/target/ezmqxxmlsubscriber.go?s=3527:3603#L88">GetTopics</a>
+					<a class="permalink" href="#EZMQXXMLSubscriber.GetTopics">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXXMLSubscriber">EZMQXXMLSubscriber</a>) GetTopics() (*<a href="/pkg/container/list/">list</a>.<a href="/pkg/container/list/#List">List</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get list of topics that subscribed by this subscriber.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXXMLSubscriber.IsTerminated">func (*EZMQXXMLSubscriber) <a href="/src/target/ezmqxxmlsubscriber.go?s=3248:3321#L79">IsTerminated</a>
+					<a class="permalink" href="#EZMQXXMLSubscriber.IsTerminated">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXXMLSubscriber">EZMQXXMLSubscriber</a>) IsTerminated() (<a href="/pkg/builtin/#bool">bool</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Check whether subscriber is terminated or not.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXXMLSubscriber.Terminate">func (*EZMQXXMLSubscriber) <a href="/src/target/ezmqxxmlsubscriber.go?s=2971:3033#L69">Terminate</a>
+					<a class="permalink" href="#EZMQXXMLSubscriber.Terminate">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXXMLSubscriber">EZMQXXMLSubscriber</a>) Terminate() <a href="#EZMQXErrorCode">EZMQXErrorCode</a></pre>
+				<p>
+Terminate EZMQX XML subscriber.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="EZMQXXmlErrorCB">type <a href="/src/target/ezmqxxmlsubscriber.go?s=1035:1100#L21">EZMQXXmlErrorCB</a>
+				<a class="permalink" href="#EZMQXXmlErrorCB">&#xb6;</a>
+			</h2>
+			<p>
+Callback to get error for the subscribed topic.
+</p>
+
+			<pre>type EZMQXXmlErrorCB func(topic <a href="/pkg/builtin/#string">string</a>, errorCode <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="EZMQXXmlSubCB">type <a href="/src/target/ezmqxxmlsubscriber.go?s=932:982#L18">EZMQXXmlSubCB</a>
+				<a class="permalink" href="#EZMQXXmlSubCB">&#xb6;</a>
+			</h2>
+			<p>
+Callback to get all the subscribed events for a specific topic.
+</p>
+
+			<pre>type EZMQXXmlSubCB func(topic <a href="/pkg/builtin/#string">string</a>, data <a href="/pkg/builtin/#string">string</a>)</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+	
+
+	
+
+
+
+
+

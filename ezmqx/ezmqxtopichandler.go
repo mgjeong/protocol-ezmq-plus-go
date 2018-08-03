@@ -18,7 +18,6 @@
 package ezmqx
 
 import (
-	"bytes"
 	"container/list"
 	"encoding/json"
 	"fmt"
@@ -26,7 +25,6 @@ import (
 	"go.uber.org/zap"
 	"go/ezmq"
 	"math/rand"
-	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -244,10 +242,12 @@ func (instance *EZMQXTopicHandler) sendKeepAlive() {
 		Logger.Error("send Keep alive: json marshal failed")
 		return
 	}
-	keepAliveURL := HTTP_PREFIX + instance.tnsAddress + COLON + TNS_KNOWN_PORT + PREFIX + TNS_KEEP_ALIVE
+	keepAliveURL := instance.tnsAddress + PREFIX + TNS_KEEP_ALIVE
 	Logger.Debug("[Send Keep Alive]", zap.String("Rest URL:", keepAliveURL))
-	response, _ := http.Post(keepAliveURL, APPLICATION_JSON, bytes.NewBuffer(jsonPayload))
-	Logger.Debug("[Send Keep Alive] ", zap.Int("Response Status code: ", response.StatusCode))
+	client := GetRestFactory()
+	duration := time.Duration(instance.keepAliveInterval.Load().(int64)) * time.Second * 2
+	response, _ := client.Post1(keepAliveURL, jsonPayload, duration)
+	Logger.Debug("[Send Keep Alive] ", zap.Int("Response Status code: ", response.GetStatusCode()))
 }
 
 func (instance *EZMQXTopicHandler) terminateHandler() {

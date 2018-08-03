@@ -77,30 +77,17 @@ func GetAMLStandAloneSubscriber1(topics list.List, subCallback EZMQXAmlSubCB, er
 
 // Terminate EZMQX AML subscriber.
 func (instance *EZMQXAMLSubscriber) Terminate() EZMQXErrorCode {
-	subscriber := instance.subscriber
-	if nil == subscriber {
-		Logger.Error("Subscriber is null")
-		return EZMQX_UNKNOWN_STATE
-	}
-	return subscriber.terminate()
+	return instance.subscriber.terminate()
 }
 
 // Check whether subscriber is terminated or not.
 func (instance *EZMQXAMLSubscriber) IsTerminated() (bool, EZMQXErrorCode) {
-	subscriber := instance.subscriber
-	if nil == subscriber {
-		return false, EZMQX_UNKNOWN_STATE
-	}
-	return subscriber.isTerminated(), EZMQX_OK
+	return instance.subscriber.isTerminated(), EZMQX_OK
 }
 
 // Get list of topics that subscribed by this subscriber.
 func (instance *EZMQXAMLSubscriber) GetTopics() (*list.List, EZMQXErrorCode) {
-	subscriber := instance.subscriber
-	if nil == subscriber {
-		return nil, EZMQX_UNKNOWN_STATE
-	}
-	return subscriber.getTopics(), EZMQX_OK
+	return instance.subscriber.getTopics(), EZMQX_OK
 }
 
 func createAmlSubscriber(subCallback EZMQXAmlSubCB, errorCallback EZMQXAmlErrorCB) *EZMQXAMLSubscriber {

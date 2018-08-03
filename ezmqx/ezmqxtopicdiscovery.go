@@ -22,9 +22,6 @@ import (
 
 	"encoding/json"
 	"go.uber.org/zap"
-	"io/ioutil"
-	"net/http"
-	"time"
 )
 
 // Structure represents EZMQX topic discovery.
@@ -114,7 +111,7 @@ func (instance *EZMQXTopicDiscovery) parseTNSResponse(data []byte) (*list.List, 
 }
 
 func (instance *EZMQXTopicDiscovery) verifyTopic(topic string, isHierarchical bool) (*list.List, EZMQXErrorCode) {
-	tnsURL := HTTP_PREFIX + instance.ezmqxCtx.ctxGetTnsAddr() + COLON + TNS_KNOWN_PORT + PREFIX + TOPIC
+	tnsURL := instance.ezmqxCtx.ctxGetTnsAddr() + PREFIX + TOPIC
 	Logger.Debug("[Topic discovery]", zap.String("Rest URL:", tnsURL))
 
 	var hierarchical string
@@ -126,24 +123,17 @@ func (instance *EZMQXTopicDiscovery) verifyTopic(topic string, isHierarchical bo
 	query := QUERY_NAME + topic + QUERY_HIERARCHICAL + hierarchical
 	Logger.Debug("[Topic discovery]", zap.String("query:", query))
 
-	timeout := time.Duration(CONNECTION_TIMEOUT * time.Second)
-	client := http.Client{
-		Timeout: timeout,
-	}
+	client := GetRestFactory()
 	response, err := client.Get(tnsURL + QUESTION_MARK + query)
-	if err != nil {
+	if err != EZMQX_OK {
 		Logger.Error("[Topic discovery]: request failed")
 		return nil, EZMQX_REST_ERROR
 	}
-	if response.StatusCode != HTTP_OK {
+	if response.GetStatusCode() != HTTP_OK {
 		Logger.Error("[Topic discovery]: Response code is not HTTP_OK")
 		return nil, EZMQX_REST_ERROR
 	}
-	data, error := ioutil.ReadAll(response.Body)
-	if error != nil {
-		Logger.Error("[Topic discovery]: read body failed")
-		return nil, EZMQX_REST_ERROR
-	}
+	data := response.GetResponse()
 	Logger.Debug("[Topic discovery]: ", zap.String("response:", string(data)))
 	return instance.parseTNSResponse(data)
 }

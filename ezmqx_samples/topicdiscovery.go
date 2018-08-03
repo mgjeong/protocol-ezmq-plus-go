@@ -27,6 +27,9 @@ import (
 	"time"
 )
 
+const TNS_CONFIG_FILE_PATH = "tnsConf.json"
+const LOCAL_HOST = "localhost"
+
 func printTopicError() {
 	fmt.Printf("\nRe-run the application as shown in below example: \n")
 	fmt.Printf("\n  (1) For running in standalone mode: ")
@@ -79,14 +82,14 @@ func main() {
 
 	//Initialize the EZMQX SDK
 	if true == isStandAlone {
-		result := configInstance.StartStandAloneMode(true, tnsAddress)
+		result := configInstance.StartStandAloneMode(LOCAL_HOST, true, tnsAddress)
 		if result != ezmqx.EZMQX_OK {
 			fmt.Println("Start stand alone mode failed")
 			os.Exit(-1)
 		}
 		fmt.Println("Stand alone mode started")
 	} else {
-		result := configInstance.StartDockerMode()
+		result := configInstance.StartDockerMode(TNS_CONFIG_FILE_PATH)
 		if result != ezmqx.EZMQX_OK {
 			fmt.Println("Start docker mode failed")
 			os.Exit(-1)

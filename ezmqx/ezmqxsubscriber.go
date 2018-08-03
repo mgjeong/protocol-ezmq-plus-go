@@ -24,10 +24,7 @@ import (
 	"go.uber.org/zap"
 	"go/aml"
 	"go/ezmq"
-	"io/ioutil"
-	"net/http"
 	"sync/atomic"
-	"time"
 )
 
 type EZMQXSubCB func(topic string, ezmqMsg ezmq.EZMQMessage)
@@ -113,7 +110,7 @@ func (instance *EZMQXSubscriber) parseTNSResponse(data []byte) (*list.List, EZMQ
 }
 
 func (instance *EZMQXSubscriber) verifyTopics(topic string, isHierarchical bool) (*list.List, EZMQXErrorCode) {
-	tnsURL := HTTP_PREFIX + instance.context.ctxGetTnsAddr() + COLON + TNS_KNOWN_PORT + PREFIX + TOPIC
+	tnsURL := instance.context.ctxGetTnsAddr() + PREFIX + TOPIC
 	Logger.Debug("[TNS get topic]", zap.String("Rest URL:", tnsURL))
 	var hierarchical string
 	if true == isHierarchical {
@@ -124,24 +121,17 @@ func (instance *EZMQXSubscriber) verifyTopics(topic string, isHierarchical bool)
 	query := QUERY_NAME + topic + QUERY_HIERARCHICAL + hierarchical
 	Logger.Debug("[TNS get topic]", zap.String("query:", query))
 
-	timeout := time.Duration(CONNECTION_TIMEOUT * time.Second)
-	client := http.Client{
-		Timeout: timeout,
-	}
+	client := GetRestFactory()
 	response, err := client.Get(tnsURL + QUESTION_MARK + query)
-	if err != nil {
+	if err != EZMQX_OK {
 		Logger.Debug("[TNS get topic] request failed")
 		return nil, EZMQX_REST_ERROR
 	}
-	if response.StatusCode != HTTP_OK {
+	if response.GetStatusCode() != HTTP_OK {
 		Logger.Debug("[TNS get topic] Response code is not HTTP_OK")
 		return nil, EZMQX_REST_ERROR
 	}
-	data, error := ioutil.ReadAll(response.Body)
-	if error != nil {
-		Logger.Error("[TNS get topic]: read body failed")
-		return nil, EZMQX_REST_ERROR
-	}
+	data := response.GetResponse()
 	Logger.Debug("[TNS get topic]", zap.String("response:", string(data)))
 	return instance.parseTNSResponse(data)
 }

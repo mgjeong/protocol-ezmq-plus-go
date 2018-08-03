@@ -18,16 +18,11 @@
 package ezmqx
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"go.uber.org/zap"
 	"go/ezmq"
-	"io/ioutil"
-	"net/http"
 	"sync/atomic"
-
-	"time"
 )
 
 type EZMQXPublisher struct {
@@ -72,7 +67,7 @@ func (instance *EZMQXPublisher) initialize(optionalPort int) EZMQXErrorCode {
 		return EZMQX_UNKNOWN_STATE
 	}
 	// Init topic handler
-	if !instance.context.isCtxStandAlone() {
+	if instance.context.isCtxTnsEnabled() {
 		instance.topicHandler = getTopicHandler()
 		instance.topicHandler.initHandler()
 		Logger.Debug("Initialized topic handler")
@@ -81,19 +76,16 @@ func (instance *EZMQXPublisher) initialize(optionalPort int) EZMQXErrorCode {
 	return EZMQX_OK
 }
 
-func (instance *EZMQXPublisher) parseTopicResponse(response http.Response) EZMQXErrorCode {
-	Logger.Debug("parseTopicResponse ", zap.Int(" Status code: ", response.StatusCode))
-	if response.StatusCode != HTTP_CREATED {
+func (instance *EZMQXPublisher) parseTopicResponse(response RestResponse) EZMQXErrorCode {
+	statusCode := response.GetStatusCode()
+	Logger.Debug("parseTopicResponse ", zap.Int(" Status code: ", statusCode))
+	if statusCode != HTTP_CREATED {
 		Logger.Error("parseTopicResponse, status code is not HTTP_CREATED")
 		return EZMQX_REST_ERROR
 	}
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		Logger.Error("parseTopicResponse, read response body failed")
-		return EZMQX_REST_ERROR
-	}
+	data := response.GetResponse()
 	result := make(map[string]int)
-	err = json.Unmarshal([]byte(data), &result)
+	err := json.Unmarshal([]byte(data), &result)
 	if err != nil {
 		Logger.Error("Unmarshal error")
 		return EZMQX_REST_ERROR
@@ -109,6 +101,7 @@ func (instance *EZMQXPublisher) parseTopicResponse(response http.Response) EZMQX
 	}
 	Logger.Debug("Keep alive interval", zap.Int("Interval: ", interval))
 	topicHandler := instance.topicHandler
+	// fmt.println is used as logger is not supporting for atomic values
 	fmt.Println("[parseTopicResponse] Current Keep Alive interval:", topicHandler.getKeepAliveInterval())
 	if topicHandler.getKeepAliveInterval() < 0 {
 		topicHandler.updateKeepAliveInterval(int64(interval))
@@ -144,13 +137,11 @@ func (instance *EZMQXPublisher) registerTopic(topic *EZMQXTopic) EZMQXErrorCode 
 		Logger.Error("TNS register topic: Json marshal failed")
 		return EZMQX_REST_ERROR
 	}
-	timeout := time.Duration(CONNECTION_TIMEOUT * time.Second)
-	client := http.Client{
-		Timeout: timeout,
-	}
-	topicURL := HTTP_PREFIX + context.ctxGetTnsAddr() + COLON + TNS_KNOWN_PORT + PREFIX + TOPIC
-	response, err := client.Post(topicURL, APPLICATION_JSON, bytes.NewBuffer(jsonValue))
-	if err != nil {
+	client := GetRestFactory()
+	topicURL := context.ctxGetTnsAddr() + PREFIX + TOPIC
+	Logger.Debug("[TNS register topic] ", zap.String("Rest URL: ", string(topicURL)))
+	response, error := client.Post(topicURL, jsonValue)
+	if error != EZMQX_OK {
 		Logger.Error("TNS register topic: Post request failed")
 		return EZMQX_REST_ERROR
 	}
@@ -174,29 +165,17 @@ func (instance *EZMQXPublisher) unRegisterTopic(topic *EZMQXTopic) EZMQXErrorCod
 	if !context.isCtxTnsEnabled() {
 		return EZMQX_OK
 	}
-	timeout := time.Duration(CONNECTION_TIMEOUT * time.Second)
-	client := http.Client{
-		Timeout: timeout,
-	}
-	topicURL := HTTP_PREFIX + context.ctxGetTnsAddr() + COLON + TNS_KNOWN_PORT + PREFIX + TOPIC
+	topicURL := context.ctxGetTnsAddr() + PREFIX + TOPIC
 	query := QUERY_NAME + topic.GetName()
 	Logger.Debug("[TNS unregister topic]", zap.String("Rest URL: ", string(topicURL)))
 	Logger.Debug("[TNS unregister topic]", zap.String("Query: ", string(query)))
-	req, err := http.NewRequest("DELETE", topicURL+QUESTION_MARK+query, nil)
-	if err != nil {
-		Logger.Error("[TNS unregister topic]: Form delete request failed")
+
+	client := GetRestFactory()
+	response, _ := client.Delete(topicURL+QUESTION_MARK+query, nil)
+	Logger.Debug("[TNS unregister topic]", zap.Int("Status: ", response.GetStatusCode()))
+	if response.GetStatusCode() != HTTP_OK {
 		return EZMQX_REST_ERROR
 	}
-	response, err := client.Do(req)
-	if err != nil {
-		Logger.Error("[TNS unregister topic]: Delete request failed")
-		return EZMQX_REST_ERROR
-	}
-	if response.StatusCode != HTTP_OK {
-		Logger.Error("[TNS unregister topic]: status code is not HTTP_OK")
-		return EZMQX_REST_ERROR
-	}
-	Logger.Debug("[TNS unregister topic]", zap.String("Status: ", response.Status))
 
 	//send request to topic handler to remove from topic list
 	result := getTopicHandler().send(UNREGISTER, topic.GetName())

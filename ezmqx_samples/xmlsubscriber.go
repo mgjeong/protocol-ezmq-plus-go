@@ -30,6 +30,8 @@ import (
 )
 
 const AML_FILE_PATH = "sample_data_model.aml"
+const TNS_CONFIG_FILE_PATH = "tnsConf.json"
+const LOCAL_HOST = "localhost"
 
 func printError() {
 	fmt.Printf("\nRe-run the application as shown in below examples: \n")
@@ -60,16 +62,16 @@ func main() {
 	for n := 1; n < len(os.Args); n++ {
 		if 0 == strings.Compare(os.Args[n], "-ip") {
 			ip = os.Args[n+1]
-			fmt.Printf("\nGiven Ip: %s", ip)
+			fmt.Println("Given Ip: ", ip)
 			n = n + 1
 			isStandAlone = true
 		} else if 0 == strings.Compare(os.Args[n], "-port") {
 			port, _ = strconv.Atoi(os.Args[n+1])
-			fmt.Printf("\nGiven Port %d: ", port)
+			fmt.Println("Given Port: ", port)
 			n = n + 1
 		} else if 0 == strings.Compare(os.Args[n], "-t") {
 			topic = os.Args[n+1]
-			fmt.Printf("Topic is : %s", topic)
+			fmt.Println("Topic is: ", topic)
 			n = n + 1
 		} else if 0 == strings.Compare(os.Args[n], "-h") {
 			isHierarchical := os.Args[n+1]
@@ -114,7 +116,7 @@ func main() {
 
 	//Initialize the EZMQX SDK
 	if true == isStandAlone {
-		result := configInstance.StartStandAloneMode(false, "")
+		result := configInstance.StartStandAloneMode(LOCAL_HOST, false, "")
 		if result != ezmqx.EZMQX_OK {
 			fmt.Println("Start Stand alone mode failed")
 			os.Exit(-1)
@@ -122,7 +124,7 @@ func main() {
 		fmt.Println("Stand alone mode started")
 
 	} else {
-		result := configInstance.StartDockerMode()
+		result := configInstance.StartDockerMode(TNS_CONFIG_FILE_PATH)
 		if result != ezmqx.EZMQX_OK {
 			fmt.Println("Start Docker mode failed")
 			os.Exit(-1)

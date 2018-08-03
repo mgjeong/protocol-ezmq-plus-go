@@ -18,7 +18,7 @@
 package ezmqx
 
 // URLs
-const NODE = "http://172.17.0.1:48098"
+const NODE = "http://pharos-node:48098"
 const PREFIX = "/api/v1"
 const API_CONFIG = "/management/device/configuration"
 const API_APPS = "/management/apps"
@@ -31,10 +31,14 @@ const QUERY_NAME = "name="
 const QUERY_HIERARCHICAL = "&hierarchical="
 const QUERY_TRUE = "yes"
 const QUERY_FALSE = "no"
+const REVERSE_PROXY_KNOWN_PORT = "80"
+const API_SEARCH_NODE = "/search/nodes"
+const REVERSE_PROXY_PREFIX = "/tns-server"
+const ANCHOR_IMAGE_NAME = "imageName="
 
 // JSON Keys
 const CONF_PROPS = "properties"
-const CONF_REMOTE_ADDR = "anchoraddress"
+const CONF_ANCHOR_ADDR = "anchorendpoint"
 const CONF_NODE_ADDR = "nodeaddress"
 const APPS_PROPS = "apps"
 const APPS_ID = "id"
@@ -56,6 +60,17 @@ const PAYLOAD_ENDPOINT = "endpoint"
 const PAYLOAD_DATAMODEL = "datamodel"
 const PAYLOAD_KEEPALIVE_INTERVAL = "ka_interval"
 const PAYLOAD_TOPIC_KA = "topic_names"
+const CONF_REVERSE_PROXY = "reverseproxy"
+const CONF_REVERSE_PROXY_ENABLED = "enabled"
+const NODES = "nodes"
+const NODES_STATUS = "status"
+const NODES_CONNECTED = "connected"
+const NODES_IP = "ip"
+const NODES_CONF = "config"
+const NODES_PROPS = "properties"
+const NODES_REVERSE_PROXY = "reverseproxy"
+const NODES_REVERSE_PROXY_ENABLED = "enabled"
+const CONFIG_ANCHOR_IMAGE_NAME = "imageName"
 
 // HostName file path
 const HOST_NAME_FILE_PATH = "/etc/hostname"

@@ -33,6 +33,8 @@ import (
 )
 
 const AML_FILE_PATH = "sample_data_model.aml"
+const TNS_CONFIG_FILE_PATH = "tnsConf.json"
+const LOCAL_HOST = "localhost"
 
 func getAMLObject() *aml.AMLObject {
 	// create "Model" data
@@ -130,7 +132,7 @@ func main() {
 
 	//Initialize the EZMQX SDK
 	if true == isStandAlone {
-		result := configInstance.StartStandAloneMode(false, "")
+		result := configInstance.StartStandAloneMode(LOCAL_HOST, false, "")
 		if result != ezmqx.EZMQX_OK {
 			fmt.Println("Start Stand alone mode: failed")
 			os.Exit(-1)
@@ -138,7 +140,7 @@ func main() {
 		fmt.Println("Stand alone mode started")
 
 	} else {
-		result := configInstance.StartDockerMode()
+		result := configInstance.StartDockerMode(TNS_CONFIG_FILE_PATH)
 		if result != ezmqx.EZMQX_OK {
 			fmt.Println("Start docker mode: failed")
 			os.Exit(-1)

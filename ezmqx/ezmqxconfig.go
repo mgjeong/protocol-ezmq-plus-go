@@ -45,18 +45,20 @@ func GetConfigInstance() *EZMQXConfig {
 		configInstance.status = CREATED
 		rand.Seed(time.Now().UnixNano())
 		InitLogger()
+		factory := GetRestFactory()
+		factory.SetFactory(RestClientFactory{})
 	}
 	return configInstance
 }
 
 // Start/Configure EZMQX in docker mode.
 // It works with Pharos system. In DockerMode, stack automatically use Tns service.
-func (configInstance *EZMQXConfig) StartDockerMode() EZMQXErrorCode {
+func (configInstance *EZMQXConfig) StartDockerMode(tnsConfPath string) EZMQXErrorCode {
 	if false == atomic.CompareAndSwapUint32(&configInstance.status, CREATED, INITIALIZING) {
 		Logger.Error("Initialize docker mode failed: Invalid state")
 		return EZMQX_UNKNOWN_STATE
 	}
-	result := configInstance.context.initializeDockerMode()
+	result := configInstance.context.initializeDockerMode(tnsConfPath)
 	if result != EZMQX_OK {
 		Logger.Error("Initialize docker mode failed")
 		atomic.StoreUint32(&configInstance.status, CREATED)
@@ -69,12 +71,13 @@ func (configInstance *EZMQXConfig) StartDockerMode() EZMQXErrorCode {
 
 // Start/Configure EZMQX in stand-alone mode.
 // It works without pharos system.
-func (configInstance *EZMQXConfig) StartStandAloneMode(useTns bool, tnsAddr string) EZMQXErrorCode {
+// Note: TNS address should be complete Rest address of TNS.
+func (configInstance *EZMQXConfig) StartStandAloneMode(hostAddr string, useTns bool, tnsAddr string) EZMQXErrorCode {
 	if false == atomic.CompareAndSwapUint32(&configInstance.status, CREATED, INITIALIZING) {
 		Logger.Error("Initialize standalone mode failed: Invalid state")
 		return EZMQX_UNKNOWN_STATE
 	}
-	result := configInstance.context.initializeStandAloneMode(useTns, tnsAddr)
+	result := configInstance.context.initializeStandAloneMode(hostAddr, useTns, tnsAddr)
 	if result != EZMQX_OK {
 		Logger.Error("Initialize standalone mode failed")
 		atomic.StoreUint32(&configInstance.status, CREATED)

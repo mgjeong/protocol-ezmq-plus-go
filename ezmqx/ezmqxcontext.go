@@ -24,29 +24,31 @@ import (
 
 	"container/list"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
-	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 type EZMQXContext struct {
-	initialized atomic.Value
-	terminated  atomic.Value
-	standAlone  bool
-	hostName    string
-	hostAddr    string
-	remoteAddr  string
-	tnsEnabled  bool
-	numOfPort   int
-	usedIdx     int
-	amlRepDic   map[string]*aml.Representation
-	usedPorts   map[int]bool
-	ports       map[int]int
-	mutex       *sync.Mutex
+	initialized         atomic.Value
+	terminated          atomic.Value
+	standAlone          bool
+	hostName            string
+	hostAddr            string
+	anchorAddr          string
+	tnsAddr             string
+	tnsImageName        string
+	reverseProxyEnabled atomic.Value
+	tnsEnabled          bool
+	numOfPort           int
+	usedIdx             int
+	amlRepDic           map[string]*aml.Representation
+	usedPorts           map[int]bool
+	ports               map[int]int
+	mutex               *sync.Mutex
 }
 
 var ctxInstance *EZMQXContext
@@ -55,6 +57,7 @@ func getContextInstance() *EZMQXContext {
 	if nil == ctxInstance {
 		ctxInstance = &EZMQXContext{}
 		ctxInstance.initialized.Store(false)
+		ctxInstance.reverseProxyEnabled.Store(false)
 		ctxInstance.standAlone = false
 		ctxInstance.amlRepDic = make(map[string]*aml.Representation)
 		ctxInstance.usedPorts = make(map[int]bool)
@@ -101,28 +104,44 @@ func (contextInstance *EZMQXContext) releaseDynamicPort(port int) EZMQXErrorCode
 }
 
 func (contextInstance *EZMQXContext) setHostInfo(name string, address string) {
-	ctxInstance.hostAddr = name
-	contextInstance.hostName = address
+	ctxInstance.hostName = name
+	contextInstance.hostAddr = address
 }
 
-func (cxtInstance *EZMQXContext) setTnsInfo(remoteAddr string) {
+func (cxtInstance *EZMQXContext) setTnsInfo(tnsAddr string) {
 	cxtInstance.tnsEnabled = true
-	cxtInstance.remoteAddr = remoteAddr
+	cxtInstance.tnsAddr = tnsAddr
 }
 
-func (contextInstance *EZMQXContext) parseConfigData(response http.Response) EZMQXErrorCode {
-	Logger.Debug("[Config] ", zap.Int(" Status code: ", response.StatusCode))
-	if response.StatusCode != HTTP_OK {
+func (contextInstance *EZMQXContext) readImageName(tnsConfPath string) EZMQXErrorCode {
+	Logger.Debug("[readImageName] ", zap.String("File path: ", tnsConfPath))
+	fileData, error := ioutil.ReadFile(tnsConfPath)
+	if error != nil {
+		Logger.Error("[readImageName] Unable to read from file")
+		return EZMQX_UNKNOWN_STATE
+	}
+	var data interface{}
+	error = json.Unmarshal(fileData, &data)
+	if error != nil {
+		Logger.Error("[readImageName] Unable to unmarshal json")
+		return EZMQX_UNKNOWN_STATE
+	}
+	stringMap := data.(map[string]interface{})
+	contextInstance.tnsImageName = stringMap[CONFIG_ANCHOR_IMAGE_NAME].(string)
+	Logger.Debug("[readImageName] ", zap.String("imageName: ", contextInstance.tnsImageName))
+	return EZMQX_OK
+}
+
+func (contextInstance *EZMQXContext) parseConfigData(response RestResponse) EZMQXErrorCode {
+	statusCode := response.GetStatusCode()
+	Logger.Debug("[Config] ", zap.Int(" Status code: ", statusCode))
+	if statusCode != HTTP_OK {
 		return EZMQX_REST_ERROR
 	}
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		Logger.Error("[Config] Failed to read response body")
-		return EZMQX_REST_ERROR
-	}
+	data := response.GetResponse()
 	Logger.Debug("[Config] ", zap.String("Response: ", string(data)))
 	configData := make(map[string][]interface{})
-	err = json.Unmarshal([]byte(data), &configData)
+	err := json.Unmarshal([]byte(data), &configData)
 	if err != nil {
 		Logger.Error("[Config] Json unmarshal failed")
 		return EZMQX_REST_ERROR
@@ -136,10 +155,10 @@ func (contextInstance *EZMQXContext) parseConfigData(response http.Response) EZM
 	nodeKeyExists := false
 	for _, item := range config {
 		stringMap := item.(map[string]interface{})
-		anchorAddress, exists := stringMap[CONF_REMOTE_ADDR]
+		anchorAddress, exists := stringMap[CONF_ANCHOR_ADDR]
 		if exists {
 			Logger.Debug("[Config] ", zap.String("Anchor address: ", anchorAddress.(string)))
-			contextInstance.setTnsInfo(anchorAddress.(string))
+			contextInstance.anchorAddr = anchorAddress.(string)
 			anchorKeyExists = true
 		}
 		nodeAddress, exist := stringMap[CONF_NODE_ADDR]
@@ -156,7 +175,90 @@ func (contextInstance *EZMQXContext) parseConfigData(response http.Response) EZM
 	return EZMQX_OK
 }
 
-func (contextInstance *EZMQXContext) readFromFile(path string) EZMQXErrorCode {
+func (contextInstance *EZMQXContext) parseProperties(config map[string]interface{}) EZMQXErrorCode {
+	properties, exist := config[NODES_PROPS].([]interface{})
+	if !exist {
+		Logger.Error("[TNS info] Properties key not exist")
+		return EZMQX_REST_ERROR
+	}
+	var proxyKeyExist = false
+	for _, property := range properties {
+		proxyMap := property.(map[string]interface{})
+		reverseProxy, exist := proxyMap[NODES_REVERSE_PROXY]
+		if exist {
+			enabled := reverseProxy.(map[string]interface{})
+			proxyEnabled := enabled[NODES_REVERSE_PROXY_ENABLED].(bool)
+			contextInstance.reverseProxyEnabled.Store(proxyEnabled)
+			proxyKeyExist = true
+		}
+	}
+	if !proxyKeyExist {
+		return EZMQX_REST_ERROR
+	}
+	return EZMQX_OK
+}
+
+func (contextInstance *EZMQXContext) parseTnsInfoResponse(response RestResponse) EZMQXErrorCode {
+	statusCode := response.GetStatusCode()
+	Logger.Debug("[TNS info] ", zap.Int(" Status code: ", statusCode))
+	if statusCode != HTTP_OK {
+		return EZMQX_REST_ERROR
+	}
+	data := response.GetResponse()
+	Logger.Debug("[TNS info] ", zap.String("Response: ", string(data)))
+
+	tnsInfoMap := make(map[string][]interface{})
+	err := json.Unmarshal([]byte(data), &tnsInfoMap)
+	if err != nil {
+		Logger.Error("[TNS info] Unmarshal error")
+		return EZMQX_REST_ERROR
+	}
+	nodes, exists := tnsInfoMap[NODES]
+	if !exists {
+		Logger.Error("[TNS info] Node key not exist")
+		return EZMQX_REST_ERROR
+	}
+	for _, item := range nodes {
+		stringMap := item.(map[string]interface{})
+
+		connected, exists := stringMap[NODES_STATUS].(string)
+		if !exists {
+			Logger.Error("[TNS info] Status key not exist")
+			return EZMQX_REST_ERROR
+		}
+		if strings.Compare("connected", connected) != 0 {
+			fmt.Println("[TNS info] Not connected")
+			continue
+		}
+
+		contextInstance.tnsAddr, exists = stringMap[NODES_IP].(string)
+		if !exists {
+			Logger.Error("[TNS info] IP key not exist")
+			return EZMQX_REST_ERROR
+		}
+
+		config, exists := stringMap[NODES_CONF].(map[string]interface{})
+		if !exists {
+			Logger.Error("[TNS info] config key not exist")
+			return EZMQX_REST_ERROR
+		}
+
+		if contextInstance.parseProperties(config) != EZMQX_OK {
+			Logger.Error("[TNS info] Parse properties error")
+			return EZMQX_REST_ERROR
+		}
+	}
+
+	if contextInstance.isReverseProxyEnabled() {
+		contextInstance.tnsAddr = HTTP_PREFIX + contextInstance.tnsAddr + COLON + REVERSE_PROXY_KNOWN_PORT + REVERSE_PROXY_PREFIX
+	} else {
+		contextInstance.tnsAddr = HTTP_PREFIX + contextInstance.tnsAddr + COLON + TNS_KNOWN_PORT
+	}
+	Logger.Debug("[TNS info] ", zap.String("TNS address: ", contextInstance.tnsAddr))
+	return EZMQX_OK
+}
+
+func (contextInstance *EZMQXContext) readHostName(path string) EZMQXErrorCode {
 	Logger.Debug("[readFromFile] ", zap.String("File path: ", path))
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -170,19 +272,16 @@ func (contextInstance *EZMQXContext) readFromFile(path string) EZMQXErrorCode {
 	return EZMQX_OK
 }
 
-func (contextInstance *EZMQXContext) parseAppsResponse(response http.Response) *list.List {
-	Logger.Debug("[Running Apps] ", zap.Int(" Status code: ", response.StatusCode))
-	if response.StatusCode != HTTP_OK {
+func (contextInstance *EZMQXContext) parseAppsResponse(response RestResponse) *list.List {
+	statusCode := response.GetStatusCode()
+	Logger.Debug("[Running Apps] ", zap.Int(" Status code: ", statusCode))
+	if statusCode != HTTP_OK {
 		return nil
 	}
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		Logger.Error("[Running Apps] Failed to read response body")
-		return nil
-	}
+	data := response.GetResponse()
 	Logger.Debug("[Running Apps] ", zap.String("Response: ", string(data)))
 	result := make(map[string][]interface{})
-	err = json.Unmarshal([]byte(data), &result)
+	err := json.Unmarshal([]byte(data), &result)
 	if err != nil {
 		Logger.Error("[Running Apps] Json unmarshal failed")
 		return nil
@@ -240,19 +339,16 @@ func (contextInstance *EZMQXContext) parsePortInfo(port interface{}) EZMQXErrorC
 	return EZMQX_OK
 }
 
-func (contextInstance *EZMQXContext) parseAppInfo(response http.Response) EZMQXErrorCode {
-	Logger.Debug("[App info] ", zap.Int(" Status code: ", response.StatusCode))
-	if response.StatusCode != HTTP_OK {
+func (contextInstance *EZMQXContext) parseAppInfo(response RestResponse) EZMQXErrorCode {
+	statusCode := response.GetStatusCode()
+	Logger.Debug("[App info] ", zap.Int(" Status code: ", statusCode))
+	if statusCode != HTTP_OK {
 		return EZMQX_REST_ERROR
 	}
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		Logger.Error("[Running Apps] Failed to read response body")
-		return EZMQX_REST_ERROR
-	}
+	data := response.GetResponse()
 	Logger.Debug("[App info] ", zap.String("Response: ", string(data)))
 	appInfo := make(map[string]interface{})
-	err = json.Unmarshal([]byte(data), &appInfo)
+	err := json.Unmarshal([]byte(data), &appInfo)
 	if err != nil {
 		Logger.Error("[Running Apps] Unmarshal error")
 		return EZMQX_REST_ERROR
@@ -291,31 +387,54 @@ func (contextInstance *EZMQXContext) parseAppInfo(response http.Response) EZMQXE
 	return EZMQX_OK
 }
 
-func (contextInstance *EZMQXContext) initializeDockerMode() EZMQXErrorCode {
+func (contextInstance *EZMQXContext) initializeDockerMode(tnsConfPath string) EZMQXErrorCode {
 	ezmqResult := ezmq.GetInstance().Initialize()
 	if ezmqResult != ezmq.EZMQ_OK {
 		Logger.Error("Could not initialize EZMQ")
 		return EZMQX_UNKNOWN_STATE
 	}
-	timeout := time.Duration(CONNECTION_TIMEOUT * time.Second)
-	client := http.Client{
-		Timeout: timeout,
+
+	//Read image name from TNS config file
+	result := contextInstance.readImageName(tnsConfPath)
+	if result != EZMQX_OK {
+		return result
 	}
+
+	restClient := GetRestFactory()
+	var response *RestResponse
+	var err EZMQXErrorCode
+
 	// Configuration resource
 	configURL := NODE + PREFIX + API_CONFIG
 	Logger.Debug("[Config] ", zap.String("Rest URL: ", string(configURL)))
-	response, err := client.Get(configURL)
-	if err != nil {
+	response, err = restClient.Get(configURL)
+	if err != EZMQX_OK {
 		Logger.Error("[Config] HTTP request failed")
 		return EZMQX_REST_ERROR
 	}
-	result := contextInstance.parseConfigData(*response)
+	result = contextInstance.parseConfigData(*response)
 	if result != EZMQX_OK {
 		Logger.Error("[Config] Parse config data failed ")
 		return result
 	}
+
+	// Get TNS information
+	anchorTNSURL := contextInstance.anchorAddr + API_SEARCH_NODE
+	query := ANCHOR_IMAGE_NAME + contextInstance.tnsImageName
+	Logger.Debug("[TNS info] ", zap.String("Rest URL: ", string(anchorTNSURL)))
+	response, err = restClient.Get(anchorTNSURL + QUESTION_MARK + query)
+	if err != EZMQX_OK {
+		Logger.Error("[TNS info] HTTP request failed")
+		return EZMQX_REST_ERROR
+	}
+	result = contextInstance.parseTnsInfoResponse(*response)
+	if result != EZMQX_OK {
+		Logger.Error("[TNS info] Parse Tns info failed ")
+		return result
+	}
+
 	// Get Host Name
-	result = contextInstance.readFromFile(HOST_NAME_FILE_PATH)
+	result = contextInstance.readHostName(HOST_NAME_FILE_PATH)
 	if result != EZMQX_OK {
 		Logger.Error("[Config] Read from file failed")
 		return result
@@ -324,9 +443,9 @@ func (contextInstance *EZMQXContext) initializeDockerMode() EZMQXErrorCode {
 	var idList *list.List = nil
 	appsURL := NODE + PREFIX + API_APPS
 	Logger.Debug("[Running Apps] ", zap.String("Rest URL: ", string(appsURL)))
-	response, err = client.Get(appsURL)
-	if err != nil {
-		Logger.Error("[Running Apps] HTTP request failed")
+	response, err = restClient.Get(appsURL)
+	if err != EZMQX_OK {
+		Logger.Error("[Config] HTTP request failed")
 		return EZMQX_REST_ERROR
 	}
 	idList = contextInstance.parseAppsResponse(*response)
@@ -340,8 +459,8 @@ func (contextInstance *EZMQXContext) initializeDockerMode() EZMQXErrorCode {
 		appId := id.Value.(string)
 		url := appInfoURL + appId
 		Logger.Debug("[App Info] ", zap.String("Rest URL: ", url))
-		response, err = client.Get(url)
-		if err != nil {
+		response, err = restClient.Get(url)
+		if err != EZMQX_OK {
 			Logger.Error("[App info] HTTP request failed")
 			return EZMQX_REST_ERROR
 		}
@@ -349,18 +468,19 @@ func (contextInstance *EZMQXContext) initializeDockerMode() EZMQXErrorCode {
 	}
 	contextInstance.initialized.Store(true)
 	contextInstance.terminated.Store(false)
+	contextInstance.tnsEnabled = true
 	Logger.Debug("EZMQX Context created")
 	return EZMQX_OK
 }
 
-func (contextInstance *EZMQXContext) initializeStandAloneMode(useTns bool, tnsAddr string) EZMQXErrorCode {
+func (contextInstance *EZMQXContext) initializeStandAloneMode(hostAddr string, useTns bool, tnsAddr string) EZMQXErrorCode {
 	result := ezmq.GetInstance().Initialize()
 	if result != ezmq.EZMQ_OK {
 		Logger.Error("Could not start ezmq context")
 		return EZMQX_UNKNOWN_STATE
 	}
 	ctxInstance.standAlone = true
-	ctxInstance.setHostInfo(LOCAL_HOST, LOCAL_HOST)
+	ctxInstance.setHostInfo(LOCAL_HOST, hostAddr)
 	if useTns {
 		ctxInstance.setTnsInfo(tnsAddr)
 	}
@@ -443,7 +563,8 @@ func (cxtInstance *EZMQXContext) terminate() EZMQXErrorCode {
 	}
 	cxtInstance.hostName = ""
 	cxtInstance.hostAddr = ""
-	cxtInstance.remoteAddr = ""
+	cxtInstance.anchorAddr = ""
+	cxtInstance.tnsAddr = ""
 	cxtInstance.usedIdx = 0
 	cxtInstance.numOfPort = 0
 	cxtInstance.standAlone = false
@@ -475,6 +596,10 @@ func (cxtInstance *EZMQXContext) isCtxTnsEnabled() bool {
 	return cxtInstance.tnsEnabled
 }
 
+func (cxtInstance *EZMQXContext) isReverseProxyEnabled() bool {
+	return (cxtInstance.reverseProxyEnabled.Load()).(bool)
+}
+
 func (cxtInstance *EZMQXContext) ctxGetTnsAddr() string {
-	return cxtInstance.remoteAddr
+	return cxtInstance.tnsAddr
 }

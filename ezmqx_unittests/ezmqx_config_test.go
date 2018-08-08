@@ -18,13 +18,11 @@
 package ezmqx_unittests
 
 import (
-	"testing"
-
 	"container/list"
 	"go/ezmqx"
+	"go/ezmqx_unittests/utils"
+	"testing"
 )
-
-const AML_FILE_PATH = "sample_data_model.aml"
 
 func TestGetConfigInstance(t *testing.T) {
 	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
@@ -35,27 +33,68 @@ func TestGetConfigInstance(t *testing.T) {
 
 func TestStartStandAloneMode(t *testing.T) {
 	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
-	result := instance.StartStandAloneMode(false, "")
+	result := instance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
 	if ezmqx.EZMQX_OK != result {
 		t.Errorf("StartStandAloneMode: Error")
 	}
 	instance.Reset()
 }
 
-/*func TestStartDockerMode(t *testing.T) {
+func TestStartStandAloneModeWithTNS(t *testing.T) {
 	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
-	result := instance.StartDockerMode()
+	result := instance.StartStandAloneMode(utils.ADDRESS, true, utils.TNS_ADDRESS)
 	if ezmqx.EZMQX_OK != result {
-		t.Errorf("StartDockerMode: Error")
+		t.Errorf("StartStandAloneMode: Error")
 	}
 	instance.Reset()
-}*/
+}
+
+func TestMultipleStart(t *testing.T) {
+	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
+	result := instance.StartStandAloneMode(utils.TEST_LOCAL_HOST, true, "")
+	if ezmqx.EZMQX_OK != result {
+		t.Errorf("StartStandAloneMode: Error")
+	}
+	result = instance.StartStandAloneMode(utils.TEST_LOCAL_HOST, true, "")
+	if ezmqx.EZMQX_OK == result {
+		t.Errorf("StartStandAloneMode: Error")
+	}
+	instance.Reset()
+}
+
+func TestStartDockerMode(t *testing.T) {
+	utils.Factory.SetFactory(utils.FakeRestClientFactory{})
+	utils.SetRestResponse(utils.CONFIG_URL, []byte(utils.VALID_CONFIG_RESPONSE))
+	utils.SetRestResponse(utils.TNS_INFO_URL, []byte(utils.VALID_TNS_INFO_RESPONSE))
+	utils.SetRestResponse(utils.RUNNING_APPS_URL, []byte(utils.VALID_RUNNING_APPS_RESPONSE))
+	utils.SetRestResponse(utils.RUNNING_APP_INFO_URL, []byte(utils.RUNNING_APP_INFO_RESPONSE))
+	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
+	result := instance.StartDockerMode(utils.TNS_CONFIG_FILE_PATH)
+	if ezmqx.EZMQX_OK != result {
+		t.Errorf("Start docker mode: Error")
+	}
+	instance.Reset()
+}
+
+func TestStartDockerModeNegative(t *testing.T) {
+	utils.Factory.SetFactory(utils.FakeRestClientFactory{})
+	utils.SetRestResponse(utils.CONFIG_URL, []byte(utils.VALID_CONFIG_RESPONSE))
+	utils.SetRestResponse(utils.TNS_INFO_URL, []byte(utils.VALID_TNS_INFO_RESPONSE))
+	utils.SetRestResponse(utils.RUNNING_APPS_URL, []byte(utils.VALID_RUNNING_APPS_RESPONSE))
+	utils.SetRestResponse(utils.RUNNING_APP_INFO_URL, []byte(utils.RUNNING_APP_INFO_RESPONSE))
+	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
+	result := instance.StartDockerMode("")
+	if result != ezmqx.EZMQX_UNKNOWN_STATE {
+		t.Errorf("Start docker mode: Error")
+	}
+	instance.Reset()
+}
 
 func TestAddAmlModel(t *testing.T) {
 	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
-	instance.StartStandAloneMode(false, "")
+	instance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
 	amlFilePath := list.New()
-	amlFilePath.PushBack(AML_FILE_PATH)
+	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	_, result := instance.AddAmlModel(*amlFilePath)
 	if ezmqx.EZMQX_OK != result {
 		t.Errorf("AddAmlModel: Error")
@@ -63,16 +102,34 @@ func TestAddAmlModel(t *testing.T) {
 	instance.Reset()
 }
 
+func TestAddAmlModelNegative(t *testing.T) {
+	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
+	amlFilePath := list.New()
+	amlFilePath.PushBack(utils.AML_FILE_PATH)
+	_, result := instance.AddAmlModel(*amlFilePath)
+	if ezmqx.EZMQX_OK == result {
+		t.Errorf("AddAmlModel: Error")
+	}
+}
+
 func TestReset(t *testing.T) {
 	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
-	result := instance.StartStandAloneMode(false, "")
+	result := instance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
 	result = instance.Reset()
 	if ezmqx.EZMQX_OK != result {
 		t.Errorf("Reset [Standalone]: Error")
 	}
-	/*instance.StartDockerMode()
+	instance.StartDockerMode(utils.TNS_CONFIG_FILE_PATH)
 	result = instance.Reset()
 	if ezmqx.EZMQX_OK != result {
 		t.Errorf("Reset [Docker]: Error")
-	}*/
+	}
+}
+
+func TestResetNegative(t *testing.T) {
+	var instance *ezmqx.EZMQXConfig = ezmqx.GetConfigInstance()
+	result := instance.Reset()
+	if ezmqx.EZMQX_OK == result {
+		t.Errorf("Reset: Error")
+	}
 }

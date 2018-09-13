@@ -79,11 +79,11 @@ func publishData(publisher *ezmqx.EZMQXAMLPublisher, amlObject *aml.AMLObject, n
 func printPubError() {
 	fmt.Printf("\nRe-run the application as shown in below example: \n")
 	fmt.Printf("\n  (1) For running in standalone mode: ")
-	fmt.Printf("\n      ./publisher -t /topic -port 5562\n")
+	fmt.Printf("\n      ./publisher_secured -t /topic -port 5562 -secured 1\n")
 	fmt.Printf("\n  (2) For running in standalone mode [With TNS]: ")
-	fmt.Printf("\n      ./publisher -t /topic -host 192.168.1.1 -port 5562 -tns 192.183.3.2\n")
+	fmt.Printf("\n      ./publisher_secured -t /topic -host 192.168.1.1 -port 5562 -tns 192.183.3.2 -secured 1\n")
 	fmt.Printf("\n  (3)  For running in docker mode: ")
-	fmt.Printf("\n      ./publisher -t /topic \n")
+	fmt.Printf("\n      ./publisher_secured -t /topic -secured 1\n")
 	fmt.Printf("\nNote: docker mode will work only when sample is running in docker container\n")
 	os.Exit(-1)
 }
@@ -97,12 +97,13 @@ func main() {
 	var topic string
 	var host string
 	var tnsAddr string = ""
+	var isSecured int = 0
 	var configInstance *ezmqx.EZMQXConfig = nil
 	var publisher *ezmqx.EZMQXAMLPublisher = nil
 	var isStandAlone bool
 
 	// get port/topic from command line arguments
-	if len(os.Args) != 3 && len(os.Args) != 5 && len(os.Args) != 9 {
+	if len(os.Args) != 5 && len(os.Args) != 7 && len(os.Args) != 11 {
 		printPubError()
 	}
 
@@ -123,6 +124,10 @@ func main() {
 		} else if 0 == strings.Compare(os.Args[n], "-tns") {
 			tnsAddr = os.Args[n+1]
 			fmt.Println("TNS Address is : ", tnsAddr)
+			n = n + 1
+		} else if 0 == strings.Compare(os.Args[n], "-secured") {
+			isSecured, _ = strconv.Atoi(os.Args[n+1])
+			fmt.Println("Is secured: ", isSecured)
 			n = n + 1
 		} else {
 			printPubError()
@@ -182,25 +187,28 @@ func main() {
 		fmt.Println("Add aml model: failed")
 		os.Exit(-1)
 	}
-
-	publisher, errorCode = ezmqx.GetAMLPublisher(topic, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), port)
-	if errorCode != ezmq.EZMQ_OK {
-		fmt.Println("Get publiser failed")
-		os.Exit(-1)
+	if 0 == isSecured {
+		publisher, errorCode = ezmqx.GetAMLPublisher(topic, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), port)
+		if errorCode != ezmq.EZMQ_OK {
+			fmt.Println("Get publiser failed")
+			os.Exit(-1)
+		}
+	} else {
+		const serverKey = "[:X%Q3UfY+kv2A^.wv:(qy2E=bk0L][cm=mS3Hcx"
+		publisher, errorCode = ezmqx.GetSecuredAMLPublisher(topic, serverKey, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), port)
+		if errorCode != ezmq.EZMQ_OK {
+			fmt.Println("Get publiser failed")
+			os.Exit(-1)
+		}
 	}
-
 	//create AML object
 	amlObject := getAMLObject()
 
 	// This delay is added to prevent ZeroMQ first packet drop during
 	// initial connection of publisher and subscriber.
 	time.Sleep(1000 * time.Millisecond)
+	publishData(publisher, amlObject, 100000)
 
-	if isStandAlone {
-		publishData(publisher, amlObject, 100000)
-	} else {
-		publishData(publisher, amlObject, 100000)
-	}
 	result = publisher.Terminate()
 	if result != ezmqx.EZMQX_OK {
 		fmt.Printf("Error while terminating publisher")

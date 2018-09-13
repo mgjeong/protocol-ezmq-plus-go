@@ -22,7 +22,6 @@ import (
 
 	"container/list"
 	"fmt"
-	"go/aml"
 	"os"
 	"os/signal"
 	"strconv"
@@ -34,75 +33,15 @@ const AML_FILE_PATH = "sample_data_model.aml"
 const TNS_CONFIG_FILE_PATH = "tnsConf.json"
 const LOCAL_HOST = "localhost"
 
-func printData(amlData *aml.AMLData, depth int) {
-	var indent string
-	for i := 0; i < depth; i++ {
-		indent = indent + "   "
-	}
-	fmt.Printf("%s{\n", indent)
-
-	keys, _ := amlData.GetKeys()
-	for i := 0; i < len(keys); i++ {
-		fmt.Printf("%s    \"%s\" : ", indent, keys[i])
-		valType, _ := amlData.GetValueType(keys[i])
-		if aml.AMLVALTYPE_STRING == valType {
-			value, _ := amlData.GetValueStr(keys[i])
-			fmt.Printf("%s", value)
-		} else if aml.AMLVALTYPE_STRINGARRAY == valType {
-			values, _ := amlData.GetValueStrArr(keys[i])
-			fmt.Printf("[")
-			for j := 0; j < len(values); j++ {
-				fmt.Printf("%s", values[j])
-				if j != len(values)-1 {
-					fmt.Printf(", ")
-				}
-			}
-			fmt.Printf("]")
-		} else if aml.AMLVALTYPE_AMLDATA == valType {
-			amlData, _ := amlData.GetValueAMLData(keys[i])
-			fmt.Printf("\n")
-			printData(amlData, depth+1)
-		}
-		if i != (len(keys) - 1) {
-			fmt.Printf(",")
-		}
-		fmt.Printf("\n")
-	}
-	fmt.Printf("%s}", indent)
-}
-
-func printObject(amlObject *aml.AMLObject) {
-	fmt.Printf("{\n")
-	deviceId, _ := amlObject.GetDeviceId()
-	fmt.Printf("   \"device\" : %s,\n", deviceId)
-	timeStamp, _ := amlObject.GetTimeStamp()
-	fmt.Printf("   \"timeStamp\" : %s,\n", timeStamp)
-	id, _ := amlObject.GetId()
-	fmt.Printf("   \"id\" : %s,\n\n", id)
-
-	dataNames, _ := amlObject.GetDataNames()
-	for i := 0; i < len(dataNames); i++ {
-		data, _ := amlObject.GetData(dataNames[i])
-		fmt.Printf("    \"%s\" : \n", dataNames[i])
-		printData(data, 1)
-
-		if i != (len(dataNames))-1 {
-			fmt.Printf(",\n")
-		}
-	}
-}
-
 func printError() {
 	fmt.Printf("\nRe-run the application as shown in below examples: \n")
 	fmt.Printf("\n  (1) For running in standalone mode: ")
-	fmt.Printf("\n     ./amlsubscriber -ip 192.168.1.1 -port 5562 -t /topic\n")
-	fmt.Printf("\n  (2) For running in standalone mode [With TNS]: ")
-	fmt.Printf("\n     ./amlsubscriber -t /topic -tns 192.168.10.1\n")
+	fmt.Printf("\n     ./xmlsubscriber_secured -ip 192.168.1.1 -port 5562 -t /topic -secured 1\n")
+	fmt.Printf("\n  (2) For running in standalone mode [[With TNS]: ")
+	fmt.Printf("\n     ./xmlsubscriber_secured -t /topic -tns 192.168.10.1 -secured 1\n")
 	fmt.Printf("\n  (3) For running in docker mode: ")
-	fmt.Printf("\n     ./amlsubscriber -t /topic -h true\n")
-	fmt.Printf("\n Note:")
-	fmt.Printf("\n (1) -h stands for hierarchical search for topic from TNS server\n")
-	fmt.Printf("\n (2) docker mode will work only when sample is running in docker container\n")
+	fmt.Printf("\n     ./xmlsubscriber_secured -t /topic -secured 1\n")
+	fmt.Printf("\n Note: docker mode will work only when sample is running in docker container\n")
 	os.Exit(-1)
 }
 
@@ -114,16 +53,16 @@ func main() {
 	var ip string
 	var port int
 	var topic string
-	var hierarchical bool
-	var subscriber *ezmqx.EZMQXAMLSubscriber
+	var subscriber *ezmqx.EZMQXXMLSubscriber
 	var result ezmqx.EZMQXErrorCode
 	var isStandAlone bool = false
 	var configInstance *ezmqx.EZMQXConfig = nil
 	var isSubscribed bool = false
 	var tnsAddr string = ""
+	var isSecured int = 0
 
 	// get ip and port from command line arguments
-	if len(os.Args) != 5 && len(os.Args) != 7 {
+	if len(os.Args) != 5 && len(os.Args) != 7 && len(os.Args) != 9 {
 		printError()
 	}
 
@@ -141,14 +80,13 @@ func main() {
 			topic = os.Args[n+1]
 			fmt.Println("Topic is: ", topic)
 			n = n + 1
-		} else if 0 == strings.Compare(os.Args[n], "-h") {
-			isHierarchical := os.Args[n+1]
-			hierarchical, _ := strconv.ParseBool(isHierarchical)
-			fmt.Println("Is hierarchical: ", hierarchical)
-			n = n + 1
 		} else if 0 == strings.Compare(os.Args[n], "-tns") {
 			tnsAddr = os.Args[n+1]
 			fmt.Println("TNS Address is : ", tnsAddr)
+			n = n + 1
+		} else if 0 == strings.Compare(os.Args[n], "-secured") {
+			isSecured, _ = strconv.Atoi(os.Args[n+1])
+			fmt.Println("Is secured: ", isSecured)
 			n = n + 1
 			isStandAlone = true
 		} else {
@@ -176,10 +114,9 @@ func main() {
 	}()
 
 	// callbacks
-	amlSubCB := func(topic string, amlObject aml.AMLObject) {
+	amlSubCB := func(topic string, data string) {
 		fmt.Println("\n[APP Callback] Topic : " + topic + "\n")
-		printObject(&amlObject)
-		fmt.Println("\n}")
+		fmt.Println("[APP Callback] Data : " + data + "\n")
 	}
 	amlErrorCB := func(topic string, errorCode ezmqx.EZMQXErrorCode) {
 		fmt.Println("\n[APP Error Callback] ErrorCode : ", errorCode)
@@ -222,22 +159,52 @@ func main() {
 		os.Exit(-1)
 	}
 
+	const serverPublicKey = "tXJx&1^QE2g7WCXbF.$$TVP.wCtxwNhR8?iLi&S<"
+	const clientPublicKey = "-QW?Ved(f:<::3d5tJ$[4Er&]6#9yr=vha/caBc("
+	const clientSecretKey = "ZB1@RS6Kv^zucova$kH(!o>tZCQ.<!Q)6-0aWFmW"
+
 	if isStandAlone {
-		if 0 == len(tnsAddr) {
-			endPoint := ezmqx.GetEZMQXEndPoint1(ip, port)
-			ezmqxTopic := ezmqx.GetEZMQXTopic(topic, idList.Front().Value.(string), false, endPoint)
-			subscriber, result = ezmqx.GetAMLStandAloneSubscriber(*ezmqxTopic, amlSubCB, amlErrorCB)
+		if 0 == isSecured {
+			if 0 == len(tnsAddr) {
+				endPoint := ezmqx.GetEZMQXEndPoint1(ip, port)
+				ezmqxTopic := ezmqx.GetEZMQXTopic(topic, idList.Front().Value.(string), false, endPoint)
+				subscriber, result = ezmqx.GetXMLStandAloneSubscriber(*ezmqxTopic, amlSubCB, amlErrorCB)
+			} else {
+				subscriber, result = ezmqx.GetXMLSubscriber(topic, true, amlSubCB, amlErrorCB)
+			}
 		} else {
-			subscriber, result = ezmqx.GetAMLSubscriber(topic, hierarchical, amlSubCB, amlErrorCB)
+			if 0 == len(tnsAddr) {
+				endPoint := ezmqx.GetEZMQXEndPoint1(ip, port)
+				ezmqxTopic := ezmqx.GetEZMQXTopic(topic, idList.Front().Value.(string), true, endPoint)
+				subscriber, result = ezmqx.GetSecuredXMLSubscriber(*ezmqxTopic, serverPublicKey, clientPublicKey, clientSecretKey, amlSubCB, amlErrorCB)
+			} else {
+				topicDiscovery, _ := ezmqx.GetEZMQXTopicDiscovery()
+				ezmqxTopic, errorCode := topicDiscovery.Query(topic)
+				fmt.Println("Topic discovery query respone: ", errorCode)
+				if errorCode != ezmqx.EZMQX_OK {
+					os.Exit(-1)
+				}
+				subscriber, result = ezmqx.GetSecuredXMLSubscriber(*ezmqxTopic, serverPublicKey, clientPublicKey, clientSecretKey, amlSubCB, amlErrorCB)
+			}
 		}
 	} else {
-		subscriber, result = ezmqx.GetAMLSubscriber(topic, hierarchical, amlSubCB, amlErrorCB)
-	}
-	if result != ezmqx.EZMQX_OK {
-		fmt.Println("Get AML subscriber failed")
-		os.Exit(-1)
+		if 0 == isSecured {
+			subscriber, result = ezmqx.GetXMLSubscriber(topic, true, amlSubCB, amlErrorCB)
+		} else {
+			topicDiscovery, _ := ezmqx.GetEZMQXTopicDiscovery()
+			ezmqxTopic, errorCode := topicDiscovery.Query(topic)
+			fmt.Println("Topic discovery query respone: ", errorCode)
+			if errorCode != ezmqx.EZMQX_OK {
+				os.Exit(-1)
+			}
+			subscriber, result = ezmqx.GetSecuredXMLSubscriber(*ezmqxTopic, serverPublicKey, clientPublicKey, clientSecretKey, amlSubCB, amlErrorCB)
+		}
 	}
 
+	if result != ezmqx.EZMQX_OK {
+		fmt.Println("Get XML subscriber failed")
+		os.Exit(-1)
+	}
 	isSubscribed = true
 	fmt.Printf("\nSuscribed to publisher.. -- Waiting for Events --\n")
 	<-exit

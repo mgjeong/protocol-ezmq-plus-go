@@ -36,6 +36,7 @@ func printTopicError() {
 	fmt.Printf("\n      ./topicdiscovery -t /topic -tns 192.168.1.1\n")
 	fmt.Printf("\n  (2)  For running in docker mode: ")
 	fmt.Printf("\n      ./topicdiscovery -t /topic \n")
+	fmt.Printf("\nNote: docker mode will work only when sample is running in docker container\n")
 	os.Exit(-1)
 }
 
@@ -49,8 +50,13 @@ func printTopicList(topicList list.List) {
 		fmt.Println("Topic: ", topic.GetName())
 		fmt.Println("Endpoint: ", topic.GetEndPoint().ToString())
 		fmt.Println("Data Model: ", topic.GetDataModel())
+		fmt.Println("Is secured : ", topic.IsSecured())
 		fmt.Println("=================================================")
 	}
+}
+
+func getTNSAddress(tnsAddress string) string {
+	return "http://" + tnsAddress + ":80/tns-server"
 }
 
 func main() {
@@ -82,7 +88,7 @@ func main() {
 
 	//Initialize the EZMQX SDK
 	if true == isStandAlone {
-		result := configInstance.StartStandAloneMode(LOCAL_HOST, true, tnsAddress)
+		result := configInstance.StartStandAloneMode(LOCAL_HOST, true, getTNSAddress(tnsAddress))
 		if result != ezmqx.EZMQX_OK {
 			fmt.Println("Start stand alone mode failed")
 			os.Exit(-1)

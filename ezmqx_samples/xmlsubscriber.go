@@ -37,10 +37,18 @@ func printError() {
 	fmt.Printf("\nRe-run the application as shown in below examples: \n")
 	fmt.Printf("\n  (1) For running in standalone mode: ")
 	fmt.Printf("\n     ./xmlsubscriber -ip 192.168.1.1 -port 5562 -t /topic\n")
-	fmt.Printf("\n  (2) For running in docker mode: ")
+	fmt.Printf("\n  (2) For running in standalone mode [With TNS]: ")
+	fmt.Printf("\n     ./xmlsubscriber -t /topic -tns 192.168.10.1\n")
+	fmt.Printf("\n  (3) For running in docker mode: ")
 	fmt.Printf("\n     ./xmlsubscriber -t /topic -h true\n")
-	fmt.Printf("\n Note: -h stands for hierarchical search for topic from TNS server\n")
+	fmt.Printf("\n Note:")
+	fmt.Printf("\n (1) -h stands for hierarchical search for topic from TNS server\n")
+	fmt.Printf("\n (2) docker mode will work only when sample is running in docker container\n")
 	os.Exit(-1)
+}
+
+func getTNSAddress(tnsAddress string) string {
+	return "http://" + tnsAddress + ":80/tns-server"
 }
 
 func main() {
@@ -53,6 +61,7 @@ func main() {
 	var isStandAlone bool = false
 	var configInstance *ezmqx.EZMQXConfig = nil
 	var isSubscribed bool = false
+	var tnsAddr string = ""
 
 	// get ip and port from command line arguments
 	if len(os.Args) != 5 && len(os.Args) != 7 {
@@ -78,6 +87,11 @@ func main() {
 			hierarchical, _ := strconv.ParseBool(isHierarchical)
 			fmt.Println("Is hierarchical: ", hierarchical)
 			n = n + 1
+		} else if 0 == strings.Compare(os.Args[n], "-tns") {
+			tnsAddr = os.Args[n+1]
+			fmt.Println("TNS Address is : ", tnsAddr)
+			n = n + 1
+			isStandAlone = true
 		} else {
 			printError()
 		}
@@ -103,11 +117,11 @@ func main() {
 	}()
 
 	// callbacks
-	amlSubCB := func(topic string, data string) {
+	xmlSubCB := func(topic string, data string) {
 		fmt.Println("\n[APP Callback] Topic : " + topic + "\n")
 		fmt.Println("[APP Callback] Data : " + data + "\n")
 	}
-	amlErrorCB := func(topic string, errorCode ezmqx.EZMQXErrorCode) {
+	xmlErrorCB := func(topic string, errorCode ezmqx.EZMQXErrorCode) {
 		fmt.Println("\n[APP Error Callback] ErrorCode : ", errorCode)
 	}
 
@@ -116,21 +130,27 @@ func main() {
 
 	//Initialize the EZMQX SDK
 	if true == isStandAlone {
-		result := configInstance.StartStandAloneMode(LOCAL_HOST, false, "")
+		if 0 == len(tnsAddr) {
+			result = configInstance.StartStandAloneMode(LOCAL_HOST, false, "")
+		} else {
+			tnsAddress := getTNSAddress(tnsAddr)
+			fmt.Println("Complete TNS address is: " + tnsAddress)
+			result = configInstance.StartStandAloneMode("", true, tnsAddress)
+		}
 		if result != ezmqx.EZMQX_OK {
-			fmt.Println("Start Stand alone mode failed")
+			fmt.Println("Start Stand alone mode: failed")
 			os.Exit(-1)
 		}
 		fmt.Println("Stand alone mode started")
-
 	} else {
 		result := configInstance.StartDockerMode(TNS_CONFIG_FILE_PATH)
 		if result != ezmqx.EZMQX_OK {
-			fmt.Println("Start Docker mode failed")
+			fmt.Println("Start docker mode: failed")
 			os.Exit(-1)
 		}
 		fmt.Println("Docker mode started")
 	}
+
 	amlFilePath := list.New()
 	amlFilePath.PushBack(AML_FILE_PATH)
 	idList, errorCode := configInstance.AddAmlModel(*amlFilePath)
@@ -144,13 +164,17 @@ func main() {
 	}
 
 	if isStandAlone {
-		endPoint := ezmqx.GetEZMQXEndPoint1(ip, port)
-		ezmqxTopic := ezmqx.GetEZMQXTopic(topic, idList.Front().Value.(string), endPoint)
-		subscriber, result = ezmqx.GetXMLStandAloneSubscriber(*ezmqxTopic, amlSubCB, amlErrorCB)
-
+		if 0 == len(tnsAddr) {
+			endPoint := ezmqx.GetEZMQXEndPoint1(ip, port)
+			ezmqxTopic := ezmqx.GetEZMQXTopic(topic, idList.Front().Value.(string), false, endPoint)
+			subscriber, result = ezmqx.GetXMLStandAloneSubscriber(*ezmqxTopic, xmlSubCB, xmlErrorCB)
+		} else {
+			subscriber, result = ezmqx.GetXMLSubscriber(topic, hierarchical, xmlSubCB, xmlErrorCB)
+		}
 	} else {
-		subscriber, result = ezmqx.GetXMLSubscriber(topic, hierarchical, amlSubCB, amlErrorCB)
+		subscriber, result = ezmqx.GetXMLSubscriber(topic, hierarchical, xmlSubCB, xmlErrorCB)
 	}
+
 	if result != ezmqx.EZMQX_OK {
 		fmt.Println("Get XML subscriber failed")
 		os.Exit(-1)

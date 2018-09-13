@@ -43,7 +43,7 @@ func TestGetXMLStandAloneSubscriber(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	subscriber, _ := ezmqx.GetXMLStandAloneSubscriber(*topic, xmlSubCB, xErrorCB)
 	if nil == subscriber {
 		t.Errorf("subscriber is nil")
@@ -59,7 +59,7 @@ func TestGetXMLStandAloneSubscriber1(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic("", idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic("", idList.Front().Value.(string), false, endPoint)
 	_, result := ezmqx.GetXMLStandAloneSubscriber(*topic, xmlSubCB, xErrorCB)
 	if result != ezmqx.EZMQX_INVALID_TOPIC {
 		t.Errorf("subscriber is nil")
@@ -74,7 +74,7 @@ func TestXMLSubscriberStandAlone(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.TEST_LOCAL_HOST, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	subscriber, _ := ezmqx.GetXMLStandAloneSubscriber(*topic, xmlSubCB, xErrorCB)
 	if nil == subscriber {
 		t.Errorf("subscriber is nil")
@@ -101,7 +101,7 @@ func TestXMLSubscriberStandAlone1(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic("", idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic("", idList.Front().Value.(string), false, endPoint)
 	topicList := list.New()
 	topicList.PushBack(*topic)
 	_, result := ezmqx.GetXMLStandAloneSubscriber1(*topicList, xmlSubCB, xErrorCB)
@@ -109,7 +109,7 @@ func TestXMLSubscriberStandAlone1(t *testing.T) {
 		t.Errorf("Get subscriber failed")
 	}
 	configInstance.Reset()
-	topic = ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	topic = ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	topicList = list.New()
 	topicList.PushBack(*topic)
 	_, result = ezmqx.GetXMLStandAloneSubscriber1(*topicList, xmlSubCB, xErrorCB)
@@ -166,7 +166,7 @@ func TestXSubTerminate(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	subscriber, _ := ezmqx.GetXMLStandAloneSubscriber(*topic, xmlSubCB, xErrorCB)
 	isTerminated, _ := subscriber.IsTerminated()
 	if true == isTerminated {
@@ -194,7 +194,7 @@ func TestXGetTopics(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	subscriber, _ := ezmqx.GetXMLStandAloneSubscriber(*topic, xmlSubCB, xErrorCB)
 	_, error := subscriber.GetTopics()
 	if error != ezmqx.EZMQX_OK {

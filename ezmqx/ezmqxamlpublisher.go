@@ -27,6 +27,7 @@ import (
 type EZMQXAMLPublisher struct {
 	publisher      *EZMQXPublisher
 	representation *aml.Representation
+	isSecured      bool
 }
 
 // Get EZMQX publisher instance.
@@ -38,12 +39,13 @@ func GetAMLPublisher(topic string, modelInfo EZMQXAmlModelInfo, modelId string, 
 	if result != EZMQX_OK {
 		return nil, result
 	}
-	result = instance.registerTopic(topic, modelInfo, modelId)
+	result = instance.registerTopic(topic, modelInfo, modelId, false)
 	if result != EZMQX_OK {
 		Logger.Error("Register topic failed, stopping ezmq publisher")
 		instance.publisher.ezmqPublisher.Stop()
 		return nil, result
 	}
+	instance.isSecured = false
 	return instance, EZMQX_OK
 }
 
@@ -105,7 +107,12 @@ func (instance *EZMQXAMLPublisher) GetTopic() (*EZMQXTopic, EZMQXErrorCode) {
 	return publisher.getTopic(), EZMQX_OK
 }
 
-func (instance *EZMQXAMLPublisher) registerTopic(topic string, modelInfo EZMQXAmlModelInfo, modelId string) EZMQXErrorCode {
+// Check whether publisher is secured or not.
+func (instance *EZMQXAMLPublisher) IsSecured() (bool, EZMQXErrorCode) {
+	return instance.isSecured, EZMQX_OK
+}
+
+func (instance *EZMQXAMLPublisher) registerTopic(topic string, modelInfo EZMQXAmlModelInfo, modelId string, isSecured bool) EZMQXErrorCode {
 	var errorCode EZMQXErrorCode
 	publisher := instance.publisher
 	context := publisher.context
@@ -144,6 +151,6 @@ func (instance *EZMQXAMLPublisher) registerTopic(topic string, modelInfo EZMQXAm
 		Logger.Error("Get hostEP failed")
 		return EZMQX_UNKNOWN_STATE
 	}
-	ezmqxTopic := GetEZMQXTopic(topic, repId, hostEP)
+	ezmqxTopic := GetEZMQXTopic(topic, repId, isSecured, hostEP)
 	return publisher.registerTopic(ezmqxTopic)
 }

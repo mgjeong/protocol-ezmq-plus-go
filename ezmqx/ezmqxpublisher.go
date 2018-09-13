@@ -128,7 +128,7 @@ func (instance *EZMQXPublisher) registerTopic(topic *EZMQXTopic) EZMQXErrorCode 
 		return EZMQX_OK
 	}
 	// Send post request to TNS server
-	jsonData := map[string]string{PAYLOAD_NAME: topic.GetName(), PAYLOAD_DATAMODEL: topic.GetDataModel(), PAYLOAD_ENDPOINT: topic.GetEndPoint().ToString()}
+	jsonData := map[string]interface{}{PAYLOAD_NAME: topic.GetName(), PAYLOAD_DATAMODEL: topic.GetDataModel(), PAYLOAD_ENDPOINT: topic.GetEndPoint().ToString(), PAYLOAD_SECURED: topic.IsSecured()}
 	payload := make(map[string]interface{})
 	payload[PAYLOAD_TOPIC] = jsonData
 	fmt.Println("TNS register topic payload: \n\n", payload)

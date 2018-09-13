@@ -101,8 +101,13 @@ func (instance *EZMQXSubscriber) parseTNSResponse(data []byte) (*list.List, EZMQ
 			Logger.Error("No name exists in json response")
 			return nil, EZMQX_REST_ERROR
 		}
+		isSecured, exists := stringMap[PAYLOAD_SECURED].(bool)
+		if !exists {
+			Logger.Error("No secured key exists in json response")
+			return nil, EZMQX_REST_ERROR
+		}
 		ezmqXEndPoint := GetEZMQXEndPoint(endPoint)
-		ezmqxTopic := GetEZMQXTopic(name, dataModel, ezmqXEndPoint)
+		ezmqxTopic := GetEZMQXTopic(name, dataModel, isSecured, ezmqXEndPoint)
 		topicValue := *ezmqxTopic
 		ezmqxTopicList.PushBack(topicValue)
 	}
@@ -152,12 +157,6 @@ func (instance *EZMQXSubscriber) createSubscriber(endPoint *EZMQXEndpoint) EZMQX
 		Logger.Error("Ezmq subscriber is null")
 		return EZMQX_UNKNOWN_STATE
 	}
-	result := instance.ezmqSubscriber.Start()
-	if result != ezmq.EZMQ_OK {
-		Logger.Error("Start ezmq subscriber failed", zap.Int("Error code:", int(result)))
-		return EZMQX_UNKNOWN_STATE
-	}
-	Logger.Debug("Started ezmq subscriber", zap.Int("Error code:", int(result)))
 	return EZMQX_OK
 }
 
@@ -169,12 +168,23 @@ func (instance *EZMQXSubscriber) subscribe(topic EZMQXTopic) EZMQXErrorCode {
 			Logger.Error("Create subscriber failed", zap.Int("Error code:", int(result)))
 			return result
 		}
-	}
-	ezmqSubscriber := instance.ezmqSubscriber
-	errorCode := ezmqSubscriber.SubscribeWithIPPort(endPoint.GetAddr(), endPoint.GetPort(), topic.GetName())
-	if errorCode != ezmq.EZMQ_OK {
-		Logger.Error("Subscribe with IP port failed")
-		return EZMQX_SESSION_UNAVAILABLE
+		ezmqResult := instance.ezmqSubscriber.Start()
+		if ezmqResult != ezmq.EZMQ_OK {
+			Logger.Error("Start ezmq subscriber failed", zap.Int("Error code:", int(result)))
+			return EZMQX_UNKNOWN_STATE
+		}
+		Logger.Debug("Started ezmq subscriber", zap.Int("Error code:", int(result)))
+		errorCode := instance.ezmqSubscriber.SubscribeForTopic(topic.GetName())
+		if errorCode != ezmq.EZMQ_OK {
+			Logger.Error("Subscribe failed")
+			return EZMQX_SESSION_UNAVAILABLE
+		}
+	} else {
+		errorCode := instance.ezmqSubscriber.SubscribeWithIPPort(endPoint.GetAddr(), endPoint.GetPort(), topic.GetName())
+		if errorCode != ezmq.EZMQ_OK {
+			Logger.Error("Subscribe with IP port failed")
+			return EZMQX_SESSION_UNAVAILABLE
+		}
 	}
 	Logger.Debug("Subscribed for topic", zap.String("Topic: ", topic.GetName()))
 	return EZMQX_OK
@@ -188,6 +198,10 @@ func (instance *EZMQXSubscriber) storeTopics(topics list.List) EZMQXErrorCode {
 	var result EZMQXErrorCode
 	for topic := topics.Front(); topic != nil; topic = topic.Next() {
 		ezmqxTopic := topic.Value.(EZMQXTopic)
+		if ezmqxTopic.IsSecured() {
+			Logger.Error("Topic is secured")
+			return EZMQX_INVALID_PARAM
+		}
 		//validate topic
 		isValid := validateTopic(ezmqxTopic.GetName())
 		if !isValid {

@@ -22,13 +22,15 @@ type EZMQXTopic struct {
 	name      string
 	dataModel string
 	endPoint  *EZMQXEndpoint
+	isSecured bool
 }
 
 // Get EZMQX topic instance.
-func GetEZMQXTopic(name string, dataModel string, endPoint *EZMQXEndpoint) *EZMQXTopic {
+func GetEZMQXTopic(name string, dataModel string, isSecured bool, endPoint *EZMQXEndpoint) *EZMQXTopic {
 	var instance *EZMQXTopic
 	instance = &EZMQXTopic{}
 	instance.name = name
+	instance.isSecured = isSecured
 	instance.dataModel = dataModel
 	instance.endPoint = endPoint
 	return instance
@@ -42,6 +44,11 @@ func (topic *EZMQXTopic) GetName() string {
 // Get AML data model id.
 func (topic *EZMQXTopic) GetDataModel() string {
 	return topic.dataModel
+}
+
+// Check if topic is secured or not.
+func (topic *EZMQXTopic) IsSecured() bool {
+	return topic.isSecured
 }
 
 // Get EZMQX end point.

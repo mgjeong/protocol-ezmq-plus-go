@@ -29,6 +29,8 @@ const LOCAL_PORT_MAX = 100
 const F_SLASH = "/"
 const F_DOUBLE_SLASH = "//"
 const TOPIC_PATTERN = "^(/)[a-zA-Z0-9-_./]+$"
+const EMPTY_STRING = ""
+const KEY_LENGTH = 40
 
 //const TOPIC_WILD_CARD = "*"
 //const TOPIC_WILD_PATTERN = "/*/";

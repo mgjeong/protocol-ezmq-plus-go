@@ -47,6 +47,18 @@ func TestGetDataModel(t *testing.T) {
 	}
 }
 
+func TestIsTopicSecured(t *testing.T) {
+	var endPoint *ezmqx.EZMQXEndpoint = ezmqx.GetEZMQXEndPoint(utils.IP_PORT)
+	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, true, endPoint)
+	if !instance.IsSecured() {
+		t.Errorf("Is secured failed")
+	}
+	instance = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, false, endPoint)
+	if instance.IsSecured() {
+		t.Errorf("Is secured failed")
+	}
+}
+
 func TestGetEndPoint(t *testing.T) {
 	var endPoint *ezmqx.EZMQXEndpoint = ezmqx.GetEZMQXEndPoint(utils.IP_PORT)
 	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, false, endPoint)

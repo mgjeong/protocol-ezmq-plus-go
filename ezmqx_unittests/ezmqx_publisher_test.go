@@ -108,6 +108,74 @@ func TestGetPublisherStandAlone4(t *testing.T) {
 	configInstance.Reset()
 }
 
+func TestGetSecuredPublisher(t *testing.T) {
+	configInstance := ezmqx.GetConfigInstance()
+	configInstance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
+	amlFilePath := list.New()
+	amlFilePath.PushBack(utils.AML_FILE_PATH)
+	idList, _ := configInstance.AddAmlModel(*amlFilePath)
+	publisher, errorCode := ezmqx.GetSecuredAMLPublisher(utils.TOPIC, utils.SERVER_SECRET_KEY, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), utils.PORT)
+	if errorCode != ezmqx.EZMQX_OK {
+		t.Errorf("GetSecuredAMLPublisher failed")
+	}
+	isSecured, _ := publisher.IsSecured()
+	if !isSecured {
+		t.Errorf("publisher is secured failed")
+	}
+	publisher.Terminate()
+	configInstance.Reset()
+}
+
+func TestGetSecuredPublisherNegative(t *testing.T) {
+	configInstance := ezmqx.GetConfigInstance()
+	configInstance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
+	amlFilePath := list.New()
+	amlFilePath.PushBack(utils.AML_FILE_PATH)
+	idList, _ := configInstance.AddAmlModel(*amlFilePath)
+	//Invalid key
+	_, errorCode := ezmqx.GetSecuredAMLPublisher(utils.TOPIC, " ", ezmqx.AML_MODEL_ID, idList.Front().Value.(string), utils.PORT)
+	if errorCode != ezmqx.EZMQX_INVALID_PARAM {
+		t.Errorf("Get publisher failed")
+	}
+	//Invalid topic
+	_, errorCode = ezmqx.GetSecuredAMLPublisher("topic", utils.SERVER_SECRET_KEY, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), utils.PORT)
+	if errorCode != ezmqx.EZMQX_INVALID_TOPIC {
+		t.Errorf("Get publisher failed")
+	}
+	configInstance.Reset()
+	//Without config
+	_, errorCode = ezmqx.GetSecuredAMLPublisher(utils.TOPIC, utils.SERVER_SECRET_KEY, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), utils.PORT)
+	if errorCode != ezmqx.EZMQX_NOT_INITIALIZED {
+		t.Errorf("Get publisher failed")
+	}
+	//With tns
+	configInstance = ezmqx.GetConfigInstance()
+	configInstance.StartStandAloneMode(utils.TEST_LOCAL_HOST, true, "")
+	amlFilePath = list.New()
+	amlFilePath.PushBack(utils.AML_FILE_PATH)
+	idList, _ = configInstance.AddAmlModel(*amlFilePath)
+	_, errorCode = ezmqx.GetSecuredAMLPublisher(utils.TOPIC, utils.SERVER_SECRET_KEY, ezmqx.AML_MODEL_ID, idList.Front().Value.(string), 5566)
+	if ezmqx.EZMQX_OK == errorCode {
+		t.Errorf("GetSecuredAMLPublisher wrong error code")
+	}
+	configInstance.Reset()
+}
+
+func TestIsSecuredPublisher(t *testing.T) {
+	configInstance := ezmqx.GetConfigInstance()
+	configInstance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
+	publisher, _ := ezmqx.GetAMLPublisher(utils.TOPIC, ezmqx.AML_FILE_PATH, utils.AML_FILE_PATH, utils.PORT)
+	if nil == publisher {
+		t.Errorf("publisher is nil")
+	}
+	isSecured, _ := publisher.IsSecured()
+	if isSecured {
+		t.Errorf("publisher is secured failed")
+	}
+	publisher.Terminate()
+	configInstance.Reset()
+}
+
 func TestStandAlonePublish(t *testing.T) {
 	configInstance := ezmqx.GetConfigInstance()
 	configInstance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")

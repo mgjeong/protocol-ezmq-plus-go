@@ -25,7 +25,7 @@ import (
 
 func TestGetEZMQXTopic(t *testing.T) {
 	var endPoint *ezmqx.EZMQXEndpoint = ezmqx.GetEZMQXEndPoint(utils.IP_PORT)
-	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, endPoint)
+	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, false, endPoint)
 	if nil == instance {
 		t.Errorf("Error config instance is NULL")
 	}
@@ -33,7 +33,7 @@ func TestGetEZMQXTopic(t *testing.T) {
 
 func TestGetName(t *testing.T) {
 	var endPoint *ezmqx.EZMQXEndpoint = ezmqx.GetEZMQXEndPoint(utils.IP_PORT)
-	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, endPoint)
+	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, false, endPoint)
 	if instance.GetName() != utils.TOPIC {
 		t.Errorf("Error Topic name mismatch")
 	}
@@ -41,15 +41,27 @@ func TestGetName(t *testing.T) {
 
 func TestGetDataModel(t *testing.T) {
 	var endPoint *ezmqx.EZMQXEndpoint = ezmqx.GetEZMQXEndPoint(utils.IP_PORT)
-	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, endPoint)
+	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, false, endPoint)
 	if instance.GetDataModel() != utils.DATA_MODEL {
 		t.Errorf("Error data model mismatch")
 	}
 }
 
+func TestIsTopicSecured(t *testing.T) {
+	var endPoint *ezmqx.EZMQXEndpoint = ezmqx.GetEZMQXEndPoint(utils.IP_PORT)
+	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, true, endPoint)
+	if !instance.IsSecured() {
+		t.Errorf("Is secured failed")
+	}
+	instance = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, false, endPoint)
+	if instance.IsSecured() {
+		t.Errorf("Is secured failed")
+	}
+}
+
 func TestGetEndPoint(t *testing.T) {
 	var endPoint *ezmqx.EZMQXEndpoint = ezmqx.GetEZMQXEndPoint(utils.IP_PORT)
-	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, endPoint)
+	var instance *ezmqx.EZMQXTopic = ezmqx.GetEZMQXTopic(utils.TOPIC, utils.DATA_MODEL, false, endPoint)
 	endPoint = instance.GetEndPoint()
 	if nil == endPoint {
 		t.Errorf("Error endpoint is NULL")

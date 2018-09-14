@@ -55,15 +55,21 @@ var RUNNING_APP_INFO_RESPONSE = `{ "description": "services:  system-provisionin
 
 const TOPIC_DISCOVERY_H_URL = "http://192.168.0.1:80/tns-server/api/v1/tns/topic?name=/topic&hierarchical=yes"
 const TOPIC_DISCOVERY_URL = "http://192.168.0.1:80/tns-server/api/v1/tns/topic?name=/topic&hierarchical=no"
-const VALID_TOPIC_DISCOVERY_RESPONSE = `{ "topics": [  {"name":  "topicName", "datamodel": "GTC_Robot_0.0.1", "endpoint": "localhost:5562" } ] }`
-const INVALID_TOPIC_DISCOVERY_RESPONSE = `{ "topic": [  {"name":  "topicName", "datamodel": "GTC_Robot_0.0.1", "endpoint": "localhost:5562" } ] }`
+const VALID_TOPIC_DISCOVERY_RESPONSE = `{ "topics": [  {"name":  "topicName", "datamodel": "GTC_Robot_0.0.1", "endpoint": "localhost:5562", "secured": false } ] }`
+const INVALID_TOPIC_DISCOVERY_RESPONSE = `{ "topic": [  {"name":  "topicName", "datamodel": "GTC_Robot_0.0.1", "endpoint": "localhost:5562", "secured": false } ] }`
 
 const PUB_TNS_URL = "http://192.168.0.1:80/tns-server/api/v1/tns/topic"
 const VALID_PUB_TNS_RESPONSE = `{ "ka_interval": 200 }`
 
 const SUB_TOPIC_H_URL = "http://192.168.0.1:80/tns-server/api/v1/tns/topic?name=/topic&hierarchical=yes"
-const SUB_TOPIC_RESPONSE = `{ "topics": [  {"name":  "/topic", "datamodel": "GTC_Robot_0.0.1", "endpoint": "localhost:5562" } ] }`
+const SUB_TOPIC_RESPONSE = `{ "topics": [  {"name":  "/topic", "datamodel": "GTC_Robot_0.0.1", "endpoint": "localhost:5562", "secured": false } ] }`
 const SUB_TOPIC_URL = "http://192.168.0.1:80/tns-server/api/v1/tns/topic?name=/topic&hierarchical=no"
+
+const SERVER_SECRET_KEY = "[:X%Q3UfY+kv2A^.wv:(qy2E=bk0L][cm=mS3Hcx";
+const SERVER_PUBLIC_KEY = "tXJx&1^QE2g7WCXbF.$$TVP.wCtxwNhR8?iLi&S<";
+const SERVER_PUBLIC_KEY2 = "xyzx&1^QE2g7WCXbF.$$TVP.wCtxwNhR8?iLiABc";
+const CLIENT_PUBLIC_KEY = "-QW?Ved(f:<::3d5tJ$[4Er&]6#9yr=vha/caBc(";
+const CLIENT_SECRET_KEY = "ZB1@RS6Kv^zucova$kH(!o>tZCQ.<!Q)6-0aWFmW";
 
 var Factory = ezmqx.GetRestFactory()
 

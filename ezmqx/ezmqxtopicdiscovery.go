@@ -103,8 +103,13 @@ func (instance *EZMQXTopicDiscovery) parseTNSResponse(data []byte) (*list.List, 
 			Logger.Error("No name exists in json response")
 			return nil, EZMQX_REST_ERROR
 		}
+		isSecured, exists := stringMap[PAYLOAD_SECURED].(bool)
+		if !exists {
+			Logger.Error("No secured key exists in json response")
+			return nil, EZMQX_REST_ERROR
+		}
 		ezmqXEndPoint := GetEZMQXEndPoint(endPoint)
-		ezmqxTopic := GetEZMQXTopic(name, dataModel, ezmqXEndPoint)
+		ezmqxTopic := GetEZMQXTopic(name, dataModel, isSecured, ezmqXEndPoint)
 		ezmqxTopicList.PushBack(ezmqxTopic)
 	}
 	return ezmqxTopicList, EZMQX_OK

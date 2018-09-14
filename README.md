@@ -34,9 +34,37 @@ and serialization / deserialization middlewares along with some added functional
 ezmq-plus has publisher, amlsubscriber, xmlsubscriber and topic-discovery sample applications. Build and run using the following guide to experiment different options in sample.
 
 ### Prerequisites ###
- Built ezmq-plus library
+ **For secured sample** : Built ezmq-plus library with secured flag.</br>
+ **For unsecured sample** : Built ezmq-plus library without secured flag.</br>
 
-### Topic Discovery sample ###
+### Publisher sample [Secured] ###
+1. Goto: ~/protocol-ezmq-plus-go/src/go/ezmqx_samples
+2. export LD_LIBRARY_PATH=../ezmqx_extlibs/
+3. Run the sample:
+    ```
+    $ ./publisher_secured
+    ```
+**Note:** It will give list of options for running the sample. 
+
+### AML Subscriber sample [Secured] ###
+1. Goto: ~/protocol-ezmq-plus-go/src/go/ezmqx_samples
+2. export LD_LIBRARY_PATH=../ezmqx_extlibs/
+3. Run the sample:
+    ```
+    $ ./amlsubscriber_secured
+    ```
+**Note:** It will give list of options for running the sample.  
+
+### XML Subscriber sample [Secured] ###
+1. Goto: ~/protocol-ezmq-plus-go/src/go/ezmqx_samples
+2. export LD_LIBRARY_PATH=../ezmqx_extlibs/
+3. Run the sample:
+    ```
+    $ ./xmlsubscriber_secured
+    ```
+**Note:** It will give list of options for running the sample. 
+ 
+### Topic Discovery sample [Secured/Unsecured] ###
 1. Goto: ~/protocol-ezmq-plus-go/src/go/ezmqx_samples
 2. export LD_LIBRARY_PATH=../ezmqx_extlibs/
 3. Run the sample:
@@ -45,7 +73,7 @@ ezmq-plus has publisher, amlsubscriber, xmlsubscriber and topic-discovery sample
     ```
 **Note:** It will give list of options for running the sample. 
 
-### Publisher sample ###
+### Publisher sample [UnSecured]  ###
 1. Goto: ~/protocol-ezmq-plus-go/src/go/ezmqx_samples
 2. export LD_LIBRARY_PATH=../ezmqx_extlibs/
 3. Run the sample:
@@ -54,7 +82,7 @@ ezmq-plus has publisher, amlsubscriber, xmlsubscriber and topic-discovery sample
     ```
 **Note:** It will give list of options for running the sample. 
 
-### AML Subscriber sample ###
+### AML Subscriber sample [UnSecured]  ###
 1. Goto: ~/protocol-ezmq-plus-go/src/go/ezmqx_samples
 2. export LD_LIBRARY_PATH=../ezmqx_extlibs/
 3. Run the sample:
@@ -63,7 +91,7 @@ ezmq-plus has publisher, amlsubscriber, xmlsubscriber and topic-discovery sample
     ```
 **Note:** It will give list of options for running the sample.  
 
-### XML Subscriber sample ###
+### XML Subscriber sample [UnSecured]  ###
 1. Goto: ~/protocol-ezmq-plus-go/src/go/ezmqx_samples
 2. export LD_LIBRARY_PATH=../ezmqx_extlibs/
 3. Run the sample:

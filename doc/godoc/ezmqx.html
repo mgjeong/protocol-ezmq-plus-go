@@ -72,9 +72,15 @@ ezmqx package which provides simplified APIs for publisher and subscriber.
 					
 					<dd>&nbsp; &nbsp; <a href="#GetAMLPublisher">func GetAMLPublisher(topic string, modelInfo EZMQXAmlModelInfo, modelId string, optionalPort int) (*EZMQXAMLPublisher, EZMQXErrorCode)</a></dd>
 				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetSecuredAMLPublisher">func GetSecuredAMLPublisher(topic string, serverPrivateKey string, modelInfo EZMQXAmlModelInfo, modelId string, optionalPort int) (*EZMQXAMLPublisher, EZMQXErrorCode)</a></dd>
+				
 				
 					
 					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLPublisher.GetTopic">func (instance *EZMQXAMLPublisher) GetTopic() (*EZMQXTopic, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLPublisher.IsSecured">func (instance *EZMQXAMLPublisher) IsSecured() (bool, EZMQXErrorCode)</a></dd>
 				
 					
 					<dd>&nbsp; &nbsp; <a href="#EZMQXAMLPublisher.IsTerminated">func (instance *EZMQXAMLPublisher) IsTerminated() (bool, EZMQXErrorCode)</a></dd>
@@ -97,6 +103,12 @@ ezmqx package which provides simplified APIs for publisher and subscriber.
 				
 					
 					<dd>&nbsp; &nbsp; <a href="#GetAMLSubscriber">func GetAMLSubscriber(topic string, isHierarchical bool, subCallback EZMQXAmlSubCB, errorCallback EZMQXAmlErrorCB) (*EZMQXAMLSubscriber, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetSecuredAMLSubscriber">func GetSecuredAMLSubscriber(topic EZMQXTopic, serverPublicKey string, clientPublicKey string, clientSecretKey string, subCallback EZMQXAmlSubCB, errorCallback EZMQXAmlErrorCB) (*EZMQXAMLSubscriber, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetSecuredAMLSubscriber1">func GetSecuredAMLSubscriber1(topicKeyMap map[EZMQXTopic]string, clientPublicKey string, clientSecretKey string, subCallback EZMQXAmlSubCB, errorCallback EZMQXAmlErrorCB) (*EZMQXAMLSubscriber, EZMQXErrorCode)</a></dd>
 				
 				
 					
@@ -193,7 +205,7 @@ ezmqx package which provides simplified APIs for publisher and subscriber.
 				<dd><a href="#EZMQXTopic">type EZMQXTopic</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="#GetEZMQXTopic">func GetEZMQXTopic(name string, dataModel string, endPoint *EZMQXEndpoint) *EZMQXTopic</a></dd>
+					<dd>&nbsp; &nbsp; <a href="#GetEZMQXTopic">func GetEZMQXTopic(name string, dataModel string, isSecured bool, endPoint *EZMQXEndpoint) *EZMQXTopic</a></dd>
 				
 				
 					
@@ -204,6 +216,9 @@ ezmqx package which provides simplified APIs for publisher and subscriber.
 				
 					
 					<dd>&nbsp; &nbsp; <a href="#EZMQXTopic.GetName">func (topic *EZMQXTopic) GetName() string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#EZMQXTopic.IsSecured">func (topic *EZMQXTopic) IsSecured() bool</a></dd>
 				
 			
 				
@@ -227,6 +242,12 @@ ezmqx package which provides simplified APIs for publisher and subscriber.
 			
 				
 				<dd><a href="#EZMQXXMLSubscriber">type EZMQXXMLSubscriber</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetSecuredXMLSubscriber">func GetSecuredXMLSubscriber(topic EZMQXTopic, serverPublicKey string, clientPublicKey string, clientSecretKey string, subCallback EZMQXXmlSubCB, errorCallback EZMQXXmlErrorCB) (*EZMQXXMLSubscriber, EZMQXErrorCode)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#GetSecuredXMLSubscriber1">func GetSecuredXMLSubscriber1(topicKeyMap map[EZMQXTopic]string, clientPublicKey string, clientSecretKey string, subCallback EZMQXXmlSubCB, errorCallback EZMQXXmlErrorCB) (*EZMQXXMLSubscriber, EZMQXErrorCode)</a></dd>
 				
 					
 					<dd>&nbsp; &nbsp; <a href="#GetXMLStandAloneSubscriber">func GetXMLStandAloneSubscriber(topic EZMQXTopic, subCallback EZMQXXmlSubCB, errorCallback EZMQXXmlErrorCB) (*EZMQXXMLSubscriber, EZMQXErrorCode)</a></dd>
@@ -351,7 +372,11 @@ ezmqx package which provides simplified APIs for publisher and subscriber.
 			
 				<a href="/src/go/ezmqx/ezmqxamlpublisher.go">ezmqxamlpublisher.go</a>
 			
+				<a href="/src/go/ezmqx/ezmqxamlpublisher_secured.go">ezmqxamlpublisher_secured.go</a>
+			
 				<a href="/src/go/ezmqx/ezmqxamlsubscriber.go">ezmqxamlsubscriber.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxamlsubscriber_secured.go">ezmqxamlsubscriber_secured.go</a>
 			
 				<a href="/src/go/ezmqx/ezmqxconfig.go">ezmqxconfig.go</a>
 			
@@ -365,9 +390,13 @@ ezmqx package which provides simplified APIs for publisher and subscriber.
 			
 				<a href="/src/go/ezmqx/ezmqxpublisher.go">ezmqxpublisher.go</a>
 			
+				<a href="/src/go/ezmqx/ezmqxpublisher_secured.go">ezmqxpublisher_secured.go</a>
+			
 				<a href="/src/go/ezmqx/ezmqxrestutils.go">ezmqxrestutils.go</a>
 			
 				<a href="/src/go/ezmqx/ezmqxsubscriber.go">ezmqxsubscriber.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxsubscriber_secured.go">ezmqxsubscriber_secured.go</a>
 			
 				<a href="/src/go/ezmqx/ezmqxtopic.go">ezmqxtopic.go</a>
 			
@@ -378,6 +407,8 @@ ezmqx package which provides simplified APIs for publisher and subscriber.
 				<a href="/src/go/ezmqx/ezmqxutils.go">ezmqxutils.go</a>
 			
 				<a href="/src/go/ezmqx/ezmqxxmlsubscriber.go">ezmqxxmlsubscriber.go</a>
+			
+				<a href="/src/go/ezmqx/ezmqxxmlsubscriber_secured.go">ezmqxxmlsubscriber_secured.go</a>
 			
 				<a href="/src/go/ezmqx/restclient.go">restclient.go</a>
 			
@@ -547,6 +578,9 @@ const TOPIC_WILD_PATTERN = &#34;/*/&#34;;
 				<pre>const <span id="DOUBLE_SLASH">DOUBLE_SLASH</span> = &#34;//&#34;</pre>
 			
 				
+				<pre>const <span id="EMPTY_STRING">EMPTY_STRING</span> = &#34;&#34;</pre>
+			
+				
 				<pre>const <span id="F_DOUBLE_SLASH">F_DOUBLE_SLASH</span> = &#34;//&#34;</pre>
 			
 				
@@ -581,6 +615,9 @@ HTTP status codes
 			
 				
 				<pre>const <span id="KEEPALIVE">KEEPALIVE</span> = &#34;keepalive&#34;</pre>
+			
+				
+				<pre>const <span id="KEY_LENGTH">KEY_LENGTH</span> = 40</pre>
 			
 				
 				<pre>const <span id="LOCAL_HOST">LOCAL_HOST</span> = &#34;localhost&#34;</pre>
@@ -635,6 +672,9 @@ URLs
 			
 				
 				<pre>const <span id="PAYLOAD_OPTION">PAYLOAD_OPTION</span> = &#34;indentation&#34;</pre>
+			
+				
+				<pre>const <span id="PAYLOAD_SECURED">PAYLOAD_SECURED</span> = &#34;secured&#34;</pre>
 			
 				
 				<pre>const <span id="PAYLOAD_TOPIC">PAYLOAD_TOPIC</span> = &#34;topic&#34;</pre>
@@ -740,7 +780,7 @@ Strings
 		
 			
 			
-			<h2 id="EZMQXAMLPublisher">type <a href="/src/target/ezmqxamlpublisher.go?s=887:988#L17">EZMQXAMLPublisher</a>
+			<h2 id="EZMQXAMLPublisher">type <a href="/src/target/ezmqxamlpublisher.go?s=887:1004#L17">EZMQXAMLPublisher</a>
 				<a class="permalink" href="#EZMQXAMLPublisher">&#xb6;</a>
 			</h2>
 			<p>
@@ -761,7 +801,7 @@ Structure represents EZMQX publisher.
 
 			
 				
-				<h3 id="GetAMLPublisher">func <a href="/src/target/ezmqxamlpublisher.go?s=1023:1157#L23">GetAMLPublisher</a>
+				<h3 id="GetAMLPublisher">func <a href="/src/target/ezmqxamlpublisher.go?s=1039:1173#L24">GetAMLPublisher</a>
 					<a class="permalink" href="#GetAMLPublisher">&#xb6;</a>
 				</h3>
 				<pre>func GetAMLPublisher(topic <a href="/pkg/builtin/#string">string</a>, modelInfo <a href="#EZMQXAmlModelInfo">EZMQXAmlModelInfo</a>, modelId <a href="/pkg/builtin/#string">string</a>, optionalPort <a href="/pkg/builtin/#int">int</a>) (*<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
@@ -772,10 +812,26 @@ Get EZMQX publisher instance.
 				
 				
 			
+				
+				<h3 id="GetSecuredAMLPublisher">func <a href="/src/target/ezmqxamlpublisher_secured.go?s=165:331#L1">GetSecuredAMLPublisher</a>
+					<a class="permalink" href="#GetSecuredAMLPublisher">&#xb6;</a>
+				</h3>
+				<pre>func GetSecuredAMLPublisher(topic <a href="/pkg/builtin/#string">string</a>, serverPrivateKey <a href="/pkg/builtin/#string">string</a>, modelInfo <a href="#EZMQXAmlModelInfo">EZMQXAmlModelInfo</a>, modelId <a href="/pkg/builtin/#string">string</a>, optionalPort <a href="/pkg/builtin/#int">int</a>) (*<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get Secured EZMQX publisher instance.
+</p>
+<p>
+Note:
+(1) Key should be 40-character string encoded in the Z85 encoding format
+</p>
+
+				
+				
+			
 
 			
 				
-				<h3 id="EZMQXAMLPublisher.GetTopic">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=3087:3162#L90">GetTopic</a>
+				<h3 id="EZMQXAMLPublisher.GetTopic">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=3110:3185#L91">GetTopic</a>
 					<a class="permalink" href="#EZMQXAMLPublisher.GetTopic">&#xb6;</a>
 				</h3>
 				<pre>func (instance *<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>) GetTopic() (*<a href="#EZMQXTopic">EZMQXTopic</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
@@ -788,7 +844,20 @@ Get instance of Topic that used on this publisher.
 				
 			
 				
-				<h3 id="EZMQXAMLPublisher.IsTerminated">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=2817:2889#L81">IsTerminated</a>
+				<h3 id="EZMQXAMLPublisher.IsSecured">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=3369:3438#L100">IsSecured</a>
+					<a class="permalink" href="#EZMQXAMLPublisher.IsSecured">&#xb6;</a>
+				</h3>
+				<pre>func (instance *<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>) IsSecured() (<a href="/pkg/builtin/#bool">bool</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Check whether publisher is secured or not.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXAMLPublisher.IsTerminated">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=2840:2912#L82">IsTerminated</a>
 					<a class="permalink" href="#EZMQXAMLPublisher.IsTerminated">&#xb6;</a>
 				</h3>
 				<pre>func (instance *<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>) IsTerminated() (<a href="/pkg/builtin/#bool">bool</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
@@ -801,7 +870,7 @@ Check whether publisher is terminated or not.
 				
 			
 				
-				<h3 id="EZMQXAMLPublisher.Publish">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=1665:1745#L41">Publish</a>
+				<h3 id="EZMQXAMLPublisher.Publish">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=1688:1768#L42">Publish</a>
 					<a class="permalink" href="#EZMQXAMLPublisher.Publish">&#xb6;</a>
 				</h3>
 				<pre>func (instance *<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>) Publish(object *<a href="/pkg/go/aml/">aml</a>.<a href="/pkg/go/aml/#AMLObject">AMLObject</a>) <a href="#EZMQXErrorCode">EZMQXErrorCode</a></pre>
@@ -814,7 +883,7 @@ Publish AMLObject on the socket for subscribers.
 				
 			
 				
-				<h3 id="EZMQXAMLPublisher.Terminate">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=2583:2644#L72">Terminate</a>
+				<h3 id="EZMQXAMLPublisher.Terminate">func (*EZMQXAMLPublisher) <a href="/src/target/ezmqxamlpublisher.go?s=2606:2667#L73">Terminate</a>
 					<a class="permalink" href="#EZMQXAMLPublisher.Terminate">&#xb6;</a>
 				</h3>
 				<pre>func (instance *<a href="#EZMQXAMLPublisher">EZMQXAMLPublisher</a>) Terminate() <a href="#EZMQXErrorCode">EZMQXErrorCode</a></pre>
@@ -883,6 +952,38 @@ It will work, if EZMQX is configured in standalone mode.
 				<p>
 Get AML subscriber instance for given topic.
 It will work, if EZMQX is configured in docker mode.
+</p>
+
+				
+				
+			
+				
+				<h3 id="GetSecuredAMLSubscriber">func <a href="/src/target/ezmqxamlsubscriber_secured.go?s=211:426#L3">GetSecuredAMLSubscriber</a>
+					<a class="permalink" href="#GetSecuredAMLSubscriber">&#xb6;</a>
+				</h3>
+				<pre>func GetSecuredAMLSubscriber(topic <a href="#EZMQXTopic">EZMQXTopic</a>, serverPublicKey <a href="/pkg/builtin/#string">string</a>, clientPublicKey <a href="/pkg/builtin/#string">string</a>, clientSecretKey <a href="/pkg/builtin/#string">string</a>, subCallback <a href="#EZMQXAmlSubCB">EZMQXAmlSubCB</a>, errorCallback <a href="#EZMQXAmlErrorCB">EZMQXAmlErrorCB</a>) (*<a href="#EZMQXAMLSubscriber">EZMQXAMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get secured AML subscriber instance for given topic.
+</p>
+<p>
+Note:
+(1) Key should be 40-character string encoded in the Z85 encoding format
+</p>
+
+				
+				
+			
+				
+				<h3 id="GetSecuredAMLSubscriber1">func <a href="/src/target/ezmqxamlsubscriber_secured.go?s=955:1163#L20">GetSecuredAMLSubscriber1</a>
+					<a class="permalink" href="#GetSecuredAMLSubscriber1">&#xb6;</a>
+				</h3>
+				<pre>func GetSecuredAMLSubscriber1(topicKeyMap map[<a href="#EZMQXTopic">EZMQXTopic</a>]<a href="/pkg/builtin/#string">string</a>, clientPublicKey <a href="/pkg/builtin/#string">string</a>, clientSecretKey <a href="/pkg/builtin/#string">string</a>, subCallback <a href="#EZMQXAmlSubCB">EZMQXAmlSubCB</a>, errorCallback <a href="#EZMQXAmlErrorCB">EZMQXAmlErrorCB</a>) (*<a href="#EZMQXAMLSubscriber">EZMQXAMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get secured AML subscriber instance for given topic.
+</p>
+<p>
+Note:
+(1) Key should be 40-character string encoded in the Z85 encoding format
 </p>
 
 				
@@ -1288,7 +1389,7 @@ Get endpoint as string.
 		
 			
 			
-			<h2 id="EZMQXTopic">type <a href="/src/target/ezmqxtopic.go?s=832:920#L11">EZMQXTopic</a>
+			<h2 id="EZMQXTopic">type <a href="/src/target/ezmqxtopic.go?s=832:936#L11">EZMQXTopic</a>
 				<a class="permalink" href="#EZMQXTopic">&#xb6;</a>
 			</h2>
 			<p>
@@ -1309,10 +1410,10 @@ Structure represents EZMQX topic.
 
 			
 				
-				<h3 id="GetEZMQXTopic">func <a href="/src/target/ezmqxtopic.go?s=951:1037#L18">GetEZMQXTopic</a>
+				<h3 id="GetEZMQXTopic">func <a href="/src/target/ezmqxtopic.go?s=967:1069#L19">GetEZMQXTopic</a>
 					<a class="permalink" href="#GetEZMQXTopic">&#xb6;</a>
 				</h3>
-				<pre>func GetEZMQXTopic(name <a href="/pkg/builtin/#string">string</a>, dataModel <a href="/pkg/builtin/#string">string</a>, endPoint *<a href="#EZMQXEndpoint">EZMQXEndpoint</a>) *<a href="#EZMQXTopic">EZMQXTopic</a></pre>
+				<pre>func GetEZMQXTopic(name <a href="/pkg/builtin/#string">string</a>, dataModel <a href="/pkg/builtin/#string">string</a>, isSecured <a href="/pkg/builtin/#bool">bool</a>, endPoint *<a href="#EZMQXEndpoint">EZMQXEndpoint</a>) *<a href="#EZMQXTopic">EZMQXTopic</a></pre>
 				<p>
 Get EZMQX topic instance.
 </p>
@@ -1323,7 +1424,7 @@ Get EZMQX topic instance.
 
 			
 				
-				<h3 id="EZMQXTopic.GetDataModel">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1307:1353#L33">GetDataModel</a>
+				<h3 id="EZMQXTopic.GetDataModel">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1371:1417#L35">GetDataModel</a>
 					<a class="permalink" href="#EZMQXTopic.GetDataModel">&#xb6;</a>
 				</h3>
 				<pre>func (topic *<a href="#EZMQXTopic">EZMQXTopic</a>) GetDataModel() <a href="/pkg/builtin/#string">string</a></pre>
@@ -1336,7 +1437,7 @@ Get AML data model id.
 				
 			
 				
-				<h3 id="EZMQXTopic.GetEndPoint">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1407:1460#L38">GetEndPoint</a>
+				<h3 id="EZMQXTopic.GetEndPoint">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1579:1632#L45">GetEndPoint</a>
 					<a class="permalink" href="#EZMQXTopic.GetEndPoint">&#xb6;</a>
 				</h3>
 				<pre>func (topic *<a href="#EZMQXTopic">EZMQXTopic</a>) GetEndPoint() *<a href="#EZMQXEndpoint">EZMQXEndpoint</a></pre>
@@ -1349,12 +1450,25 @@ Get EZMQX end point.
 				
 			
 				
-				<h3 id="EZMQXTopic.GetName">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1215:1256#L28">GetName</a>
+				<h3 id="EZMQXTopic.GetName">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1279:1320#L30">GetName</a>
 					<a class="permalink" href="#EZMQXTopic.GetName">&#xb6;</a>
 				</h3>
 				<pre>func (topic *<a href="#EZMQXTopic">EZMQXTopic</a>) GetName() <a href="/pkg/builtin/#string">string</a></pre>
 				<p>
 Get topic name.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="EZMQXTopic.IsSecured">func (*EZMQXTopic) <a href="/src/target/ezmqxtopic.go?s=1484:1525#L40">IsSecured</a>
+					<a class="permalink" href="#EZMQXTopic.IsSecured">&#xb6;</a>
+				</h3>
+				<pre>func (topic *<a href="#EZMQXTopic">EZMQXTopic</a>) IsSecured() <a href="/pkg/builtin/#bool">bool</a></pre>
+				<p>
+Check if topic is secured or not.
 </p>
 
 				
@@ -1473,6 +1587,38 @@ Structure represents EZMQX XML subscriber.
 			
 			
 
+			
+				
+				<h3 id="GetSecuredXMLSubscriber">func <a href="/src/target/ezmqxxmlsubscriber_secured.go?s=211:426#L3">GetSecuredXMLSubscriber</a>
+					<a class="permalink" href="#GetSecuredXMLSubscriber">&#xb6;</a>
+				</h3>
+				<pre>func GetSecuredXMLSubscriber(topic <a href="#EZMQXTopic">EZMQXTopic</a>, serverPublicKey <a href="/pkg/builtin/#string">string</a>, clientPublicKey <a href="/pkg/builtin/#string">string</a>, clientSecretKey <a href="/pkg/builtin/#string">string</a>, subCallback <a href="#EZMQXXmlSubCB">EZMQXXmlSubCB</a>, errorCallback <a href="#EZMQXXmlErrorCB">EZMQXXmlErrorCB</a>) (*<a href="#EZMQXXMLSubscriber">EZMQXXMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get secured XML subscriber instance for given topic.
+</p>
+<p>
+Note:
+(1) Key should be 40-character string encoded in the Z85 encoding format
+</p>
+
+				
+				
+			
+				
+				<h3 id="GetSecuredXMLSubscriber1">func <a href="/src/target/ezmqxxmlsubscriber_secured.go?s=955:1163#L20">GetSecuredXMLSubscriber1</a>
+					<a class="permalink" href="#GetSecuredXMLSubscriber1">&#xb6;</a>
+				</h3>
+				<pre>func GetSecuredXMLSubscriber1(topicKeyMap map[<a href="#EZMQXTopic">EZMQXTopic</a>]<a href="/pkg/builtin/#string">string</a>, clientPublicKey <a href="/pkg/builtin/#string">string</a>, clientSecretKey <a href="/pkg/builtin/#string">string</a>, subCallback <a href="#EZMQXXmlSubCB">EZMQXXmlSubCB</a>, errorCallback <a href="#EZMQXXmlErrorCB">EZMQXXmlErrorCB</a>) (*<a href="#EZMQXXMLSubscriber">EZMQXXMLSubscriber</a>, <a href="#EZMQXErrorCode">EZMQXErrorCode</a>)</pre>
+				<p>
+Get secured XML subscriber instance for given topic.
+</p>
+<p>
+Note:
+(1) Key should be 40-character string encoded in the Z85 encoding format
+</p>
+
+				
+				
 			
 				
 				<h3 id="GetXMLStandAloneSubscriber">func <a href="/src/target/ezmqxxmlsubscriber.go?s=1923:2068#L44">GetXMLStandAloneSubscriber</a>

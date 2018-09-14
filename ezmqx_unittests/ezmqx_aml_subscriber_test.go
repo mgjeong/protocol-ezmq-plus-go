@@ -44,7 +44,7 @@ func TestGetAMLStandAloneSubscriber(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	subscriber, _ := ezmqx.GetAMLStandAloneSubscriber(*topic, amlSubCB, errorCB)
 	if nil == subscriber {
 		t.Errorf("subscriber is nil")
@@ -60,11 +60,122 @@ func TestGetAMLStandAloneSubscriber1(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic("", idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic("", idList.Front().Value.(string), false, endPoint)
 	_, result := ezmqx.GetAMLStandAloneSubscriber(*topic, amlSubCB, errorCB)
 	if result != ezmqx.EZMQX_INVALID_TOPIC {
 		t.Errorf("subscriber is nil")
 	}
+	configInstance.Reset()
+}
+
+func TestGetSecuredAMLSubscriber(t *testing.T) {
+	configInstance := ezmqx.GetConfigInstance()
+	configInstance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
+	amlFilePath := list.New()
+	amlFilePath.PushBack(utils.AML_FILE_PATH)
+	idList, _ := configInstance.AddAmlModel(*amlFilePath)
+	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), true, endPoint)
+	subscriber, _ := ezmqx.GetSecuredAMLSubscriber(*topic, utils.SERVER_PUBLIC_KEY, utils.CLIENT_PUBLIC_KEY, utils.CLIENT_SECRET_KEY, amlSubCB, errorCB)
+	if nil == subscriber {
+		t.Errorf("subscriber is nil")
+	}
+	isSecured, _ := subscriber.IsSecured()
+	if !isSecured {
+		t.Errorf("subscriber is secured failed")
+	}
+	subscriber.Terminate()
+	configInstance.Reset()
+	// invalid topic
+	topic = ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
+	subscriber, _ = ezmqx.GetSecuredAMLSubscriber(*topic, utils.SERVER_PUBLIC_KEY, utils.CLIENT_PUBLIC_KEY, utils.CLIENT_SECRET_KEY, amlSubCB, errorCB)
+	if subscriber != nil {
+		t.Errorf("Get subscriber wrong param failed")
+	}
+	// invalid key
+	topic = ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), true, endPoint)
+	subscriber, _ = ezmqx.GetSecuredAMLSubscriber(*topic, "", utils.CLIENT_PUBLIC_KEY, utils.CLIENT_SECRET_KEY, amlSubCB, errorCB)
+	if subscriber != nil {
+		t.Errorf("Get subscriber wrong param failed")
+	}
+}
+
+func TestGetSecuredAMLSubscriberNegative(t *testing.T) {
+	configInstance := ezmqx.GetConfigInstance()
+	configInstance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
+	amlFilePath := list.New()
+	amlFilePath.PushBack(utils.AML_FILE_PATH)
+	idList, _ := configInstance.AddAmlModel(*amlFilePath)
+	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
+	topic := ezmqx.GetEZMQXTopic("", idList.Front().Value.(string), true, endPoint)
+	//Invalid topic
+	subscriber, _ := ezmqx.GetSecuredAMLSubscriber(*topic, utils.SERVER_PUBLIC_KEY, utils.CLIENT_PUBLIC_KEY, utils.CLIENT_SECRET_KEY, amlSubCB, errorCB)
+	if nil != subscriber {
+		t.Errorf("subscriber is nil")
+	}
+	//Invalid server key
+	topic = ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), true, endPoint)
+	subscriber, _ = ezmqx.GetSecuredAMLSubscriber(*topic, "", utils.CLIENT_PUBLIC_KEY, utils.CLIENT_SECRET_KEY, amlSubCB, errorCB)
+	if nil != subscriber {
+		t.Errorf("subscriber is nil")
+	}
+}
+
+func TestGetSecuredAMLSubscriber1(t *testing.T) {
+	configInstance := ezmqx.GetConfigInstance()
+	configInstance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
+	amlFilePath := list.New()
+	amlFilePath.PushBack(utils.AML_FILE_PATH)
+	idList, _ := configInstance.AddAmlModel(*amlFilePath)
+	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), true, endPoint)
+	topicKeyMap := make(map[ezmqx.EZMQXTopic]string)
+	topicKeyMap[*topic] = utils.SERVER_PUBLIC_KEY
+	subscriber, _ := ezmqx.GetSecuredAMLSubscriber1(topicKeyMap, utils.CLIENT_PUBLIC_KEY, utils.CLIENT_SECRET_KEY, amlSubCB, errorCB)
+	if nil == subscriber {
+		t.Errorf("subscriber is nil")
+	}
+	isSecured, _ := subscriber.IsSecured()
+	if !isSecured {
+		t.Errorf("subscriber is secured failed")
+	}
+	subscriber.Terminate()
+	configInstance.Reset()
+	// invalid topic
+	topic = ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
+	topicKeyMap = make(map[ezmqx.EZMQXTopic]string)
+	topicKeyMap[*topic] = utils.SERVER_PUBLIC_KEY
+	subscriber, _ = ezmqx.GetSecuredAMLSubscriber1(topicKeyMap, utils.CLIENT_PUBLIC_KEY, utils.CLIENT_SECRET_KEY, amlSubCB, errorCB)
+	if subscriber != nil {
+		t.Errorf("subscriber is nil")
+	}
+	//invalid key
+	topic = ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), true, endPoint)
+	topicKeyMap = make(map[ezmqx.EZMQXTopic]string)
+	topicKeyMap[*topic] = utils.SERVER_PUBLIC_KEY
+	subscriber, _ = ezmqx.GetSecuredAMLSubscriber1(topicKeyMap, "", utils.CLIENT_SECRET_KEY, amlSubCB, errorCB)
+	if subscriber != nil {
+		t.Errorf("subscriber is nil")
+	}
+}
+
+func TestGetSecuredAMLSubscriber2(t *testing.T) {
+	configInstance := ezmqx.GetConfigInstance()
+	configInstance.StartStandAloneMode(utils.TEST_LOCAL_HOST, false, "")
+	amlFilePath := list.New()
+	amlFilePath.PushBack(utils.AML_FILE_PATH)
+	idList, _ := configInstance.AddAmlModel(*amlFilePath)
+	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), true, endPoint)
+	topicKeyMap := make(map[ezmqx.EZMQXTopic]string)
+	topicKeyMap[*topic] = utils.SERVER_PUBLIC_KEY
+	topic2 := ezmqx.GetEZMQXTopic("/topic2", idList.Front().Value.(string), true, endPoint)
+	topicKeyMap[*topic2] = utils.SERVER_PUBLIC_KEY2
+	subscriber, _ := ezmqx.GetSecuredAMLSubscriber1(topicKeyMap, utils.CLIENT_PUBLIC_KEY, utils.CLIENT_SECRET_KEY, amlSubCB, errorCB)
+	if nil == subscriber {
+		t.Errorf("subscriber is nil")
+	}
+	subscriber.Terminate()
 	configInstance.Reset()
 }
 
@@ -75,7 +186,7 @@ func TestAMLSubscriberStandAlone(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.TEST_LOCAL_HOST, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	subscriber, _ := ezmqx.GetAMLStandAloneSubscriber(*topic, amlSubCB, errorCB)
 	if nil == subscriber {
 		t.Errorf("subscriber is nil")
@@ -102,15 +213,25 @@ func TestAMLSubscriberStandAlone1(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic("", idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	topicList := list.New()
 	topicList.PushBack(*topic)
-	_, result := ezmqx.GetAMLStandAloneSubscriber1(*topicList, amlSubCB, errorCB)
+	subscriber, result := ezmqx.GetAMLStandAloneSubscriber1(*topicList, amlSubCB, errorCB)
+	if result != ezmqx.EZMQX_OK {
+		t.Errorf("Get subscriber failed")
+	}
+	subscriber.Terminate()
+	//Invalid topic
+	topic = ezmqx.GetEZMQXTopic("", idList.Front().Value.(string), false, endPoint)
+	topicList = list.New()
+	topicList.PushBack(*topic)
+	_, result = ezmqx.GetAMLStandAloneSubscriber1(*topicList, amlSubCB, errorCB)
 	if result != ezmqx.EZMQX_INVALID_TOPIC {
 		t.Errorf("Get subscriber failed")
 	}
 	configInstance.Reset()
-	topic = ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	//Without config
+	topic = ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	topicList = list.New()
 	topicList.PushBack(*topic)
 	_, result = ezmqx.GetAMLStandAloneSubscriber1(*topicList, amlSubCB, errorCB)
@@ -167,7 +288,7 @@ func TestSubTerminate(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	subscriber, _ := ezmqx.GetAMLStandAloneSubscriber(*topic, amlSubCB, errorCB)
 	isTerminated, _ := subscriber.IsTerminated()
 	if true == isTerminated {
@@ -195,7 +316,7 @@ func TestGetTopics(t *testing.T) {
 	amlFilePath.PushBack(utils.AML_FILE_PATH)
 	idList, _ := configInstance.AddAmlModel(*amlFilePath)
 	endPoint := ezmqx.GetEZMQXEndPoint1(utils.ADDRESS, utils.PORT)
-	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), endPoint)
+	topic := ezmqx.GetEZMQXTopic(utils.TOPIC, idList.Front().Value.(string), false, endPoint)
 	subscriber, _ := ezmqx.GetAMLStandAloneSubscriber(*topic, amlSubCB, errorCB)
 	_, error := subscriber.GetTopics()
 	if error != ezmqx.EZMQX_OK {

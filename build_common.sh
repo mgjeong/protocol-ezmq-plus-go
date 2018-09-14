@@ -30,6 +30,9 @@ EZMQX_TARGET_ARCH="$(uname -m)"
 EZMQX_INSTALL_PREREQUISITES=false
 EZMQX_WITH_DEP=false
 EZMQX_BUILD_MODE="release"
+EZMQX_WITH_SECURITY=true
+
+IS_SECURED="secure"
 
 install_dependencies() { 
     TARGET_ARCH=${EZMQX_TARGET_ARCH}
@@ -53,7 +56,7 @@ install_dependencies() {
     # Build ezmq-go library
     cd $DEP_ROOT/protocol-ezmq-go
     echo -e "${GREEN}Building protocol-ezmq-go library and its dependencies${NO_COLOUR}"
-    ./build_auto.sh --target_arch=${TARGET_ARCH} --with_dependencies=${EZMQX_WITH_DEP} --build_mode=${EZMQX_BUILD_MODE}
+    ./build_auto.sh --target_arch=${TARGET_ARCH} --with_dependencies=${EZMQX_WITH_DEP} --build_mode=${EZMQX_BUILD_MODE} --with_security=${EZMQX_WITH_SECURITY}
     echo -e "${GREEN}Install ezmq-go done${NO_COLOUR}"
     
     cd $DEP_ROOT
@@ -73,50 +76,44 @@ install_dependencies() {
 
 build_x86_and_64() {
     cd $PROJECT_ROOT/src/go/
-    cd ./ezmqx
-    if [ "debug" = ${EZMQX_BUILD_MODE} ]; then
-        go build -tags=debug
-        go install
-        #build ezmqx_samples
-        cd ../ezmqx_samples
-        go build -a -tags=debug topicdiscovery.go
-        go build -a -tags=debug publisher.go	
-        go build -a -tags=debug amlsubscriber.go		
-        go build -a -tags=debug xmlsubscriber.go
+    #build ezmqx SDK
+    cd ./ezmqx  
+    go build -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" 
+    go install
+    #build ezmqx_samples
+    cd ../ezmqx_samples
+    if [ ${EZMQX_WITH_SECURITY} = true ]; then
+        go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" topicdiscovery.go
+        go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" publisher_secured.go 
+        go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" amlsubscriber_secured.go
+        go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" xmlsubscriber_secured.go      
     else
-        go build
-        go install
-        #build ezmqx_samples
-        cd ../ezmqx_samples
-        go build -a topicdiscovery.go
-        go build -a publisher.go	
-        go build -a amlsubscriber.go		
-        go build -a xmlsubscriber.go
+        go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" topicdiscovery.go
+        go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" publisher.go 
+        go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" amlsubscriber.go
+        go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" xmlsubscriber.go 
     fi
 }
 
 build_armhf_native() {
     cd $PROJECT_ROOT/src/go/
+    #build ezmqx SDK
     cd ./ezmqx
-    if [ "debug" = ${EZMQX_BUILD_MODE} ]; then
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -tags=debug
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go install
-        #build ezmqx_samples
-        cd ../ezmqx_samples
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags=debug topicdiscovery.go
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags=debug publisher.go
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags=debug amlsubscriber.go
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags=debug xmlsubscriber.go
+    CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" 
+    CGO_ENABLED=1 GOOS=linux GOARCH=arm go install
+    #build ezmqx_samples
+    cd ../ezmqx_samples
+    if [ ${EZMQX_WITH_SECURITY} = true ]; then
+        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" topicdiscovery.go
+        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" publisher_secured.go 
+        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" amlsubscriber_secured.go
+        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" xmlsubscriber_secured.go      
     else
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go install
-        #build ezmqx_samples
-        cd ../ezmqx_samples
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a topicdiscovery.go
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a publisher.go
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a amlsubscriber.go
-        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a xmlsubscriber.go
-    fi
+        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" topicdiscovery.go
+        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" publisher.go 
+        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" amlsubscriber.go
+        CGO_ENABLED=1 GOOS=linux GOARCH=arm go build -a -tags="${EZMQX_BUILD_MODE} ${IS_SECURED}" xmlsubscriber.go 
+    fi  
 }
 
 clean_ezmqx() {
@@ -135,16 +132,27 @@ usage() {
     echo -e "${GREEN}Options:${NO_COLOUR}"
     echo "  --target_arch=[x86|x86_64|armhf]                            :  Choose Target Architecture"
     echo "  --build_mode=[release|debug](default: release)              :  Build in release or debug mode"
-    echo "  --with_dependencies=(default: false)                        :  Build ezmq-plus along with dependencies [ezmq and aml]"
+    echo "  --with_dependencies=[true|false](default: false)            :  Build ezmq-plus along with dependencies [ezmq and aml]"
+    echo "  --with_security=[true|false](default: true)                 :  Build ezmq library with or without Security feature"
     echo "  -c                                                          :  Clean ezmq-plus Repository and its dependencies"
     echo "  -h / --help                                                 :  Display help and exit [Be careful it will also remove GOPATH:src, pkg and bin]"
+    echo -e "${GREEN}Note: ${NO_COLOUR}"
+    echo "  - While building newly for any architecture use -with_dependencies=true option."
 }
 
-build_ezmqx() { 
+build_ezmqx() {
+    echo -e "${GREEN}Target Arch is: $EZMQX_TARGET_ARCH${NO_COLOUR}" 
+    echo -e "${GREEN}Build mode is: $EZMQX_BUILD_MODE${NO_COLOUR}"
+    echo -e "${GREEN}Is security enabled: $EZMQX_WITH_SECURITY${NO_COLOUR}"
+    echo -e "${GREEN}Build with depedencies: ${EZMQX_WITH_DEP}${NO_COLOUR}"
+    
+    if [ ${EZMQX_WITH_SECURITY} = false ]; then
+        IS_SECURED="unsecure"
+    fi
     if [ ${EZMQX_WITH_DEP} = true ]; then
         install_dependencies
         # Copy "ezmq-go" package to GOPATH
-		cd $PROJECT_ROOT
+        cd $PROJECT_ROOT
         cp -r $DEP_ROOT/protocol-ezmq-go/src/ .
         # Copy "aml-go" package to GOPATH
         cp -r $DEP_ROOT/datamodel-aml-go/src/go/aml/ ./src/go/
@@ -162,7 +170,7 @@ build_ezmqx() {
     cp -r ezmqx_samples ./src/go
     # Copy ezmq-plus unit test cases
     cp -r ezmqx_unittests ./src/go
-	
+    
     # set flags for aml-go includes and libs 
     export CGO_CFLAGS=-I$PWD/dependencies/datamodel-aml-go/dependencies/datamodel-aml-c/include/
     export CGO_LDFLAGS=-L$PWD/src/go/ezmqx_extlibs
@@ -194,19 +202,24 @@ process_cmd_args() {
                     echo -e "${RED}Unknown option for --with_dependencies${NO_COLOUR}"
                     exit 1
                 fi
-                echo -e "${GREEN}Install dependencies [ezmq and aml] before build: ${EZMQX_WITH_DEP}${NO_COLOUR}"
                 shift 1;
                 ;;
             --target_arch=*)
                 EZMQX_TARGET_ARCH="${1#*=}";
-                echo -e "${GREEN}Target Arch is: $EZMQX_TARGET_ARCH${NO_COLOUR}"
                 shift 1
                 ;;
             --build_mode=*)
                 EZMQX_BUILD_MODE="${1#*=}";
-                echo -e "${GREEN}Build mode is: $EZMQX_BUILD_MODE${NO_COLOUR}"
                 shift 1;
                 ;;
+            --with_security=*)
+                EZMQX_WITH_SECURITY="${1#*=}";
+                if [ ${EZMQX_WITH_SECURITY} != true ] && [ ${EZMQX_WITH_SECURITY} != false ]; then
+                    echo -e "${RED}Unknown option for --with_security${NO_COLOUR}"
+                    shift 1; exit 0
+                fi              
+                shift 1;
+                ;; 
             -c)
                 clean_ezmqx
                 shift 1; exit 0
@@ -234,6 +247,7 @@ process_cmd_args() {
 }
 
 process_cmd_args "$@"
+echo -e "Building ezMQ-plus-go library("${EZMQX_TARGET_ARCH}").."
 build_ezmqx
-echo -e "${GREEN}ezmq-plus-go Build done${NO_COLOUR}"
+echo -e "Done building ezMQ-plus-go library("${EZMQX_TARGET_ARCH}")"
 

@@ -35,6 +35,7 @@ type EZMQXXMLSubscriber struct {
 	subscriber    *EZMQXSubscriber
 	subCallback   EZMQXXmlSubCB
 	errorCallback EZMQXXmlErrorCB
+	isSecured     bool
 }
 
 // Get XML subscriber instance for given topic.
@@ -46,6 +47,7 @@ func GetXMLSubscriber(topic string, isHierarchical bool, subCallback EZMQXXmlSub
 		Logger.Error("initialization failed", zap.Int("Error code:", int(result)))
 		return nil, result
 	}
+	instance.isSecured = false
 	return instance, result
 }
 
@@ -60,6 +62,7 @@ func GetXMLStandAloneSubscriber(topic EZMQXTopic, subCallback EZMQXXmlSubCB, err
 		Logger.Error("Store topic failed", zap.Int("Error code:", int(result)))
 		return nil, result
 	}
+	instance.isSecured = false
 	return instance, result
 }
 
@@ -72,6 +75,7 @@ func GetXMLStandAloneSubscriber1(topics list.List, subCallback EZMQXXmlSubCB, er
 		Logger.Error("Store topic failed", zap.Int("Error code:", int(result)))
 		return nil, result
 	}
+	instance.isSecured = false
 	return instance, result
 }
 
@@ -88,6 +92,11 @@ func (instance *EZMQXXMLSubscriber) IsTerminated() (bool, EZMQXErrorCode) {
 // Get list of topics that subscribed by this subscriber.
 func (instance *EZMQXXMLSubscriber) GetTopics() (*list.List, EZMQXErrorCode) {
 	return instance.subscriber.getTopics(), EZMQX_OK
+}
+
+// Check whether subscriber is secured or not.
+func (instance *EZMQXXMLSubscriber) IsSecured() (bool, EZMQXErrorCode) {
+	return instance.isSecured, EZMQX_OK
 }
 
 func createXmlSubscriber(subCallback EZMQXXmlSubCB, errorCallback EZMQXXmlErrorCB) *EZMQXXMLSubscriber {

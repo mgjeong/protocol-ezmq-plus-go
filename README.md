@@ -100,56 +100,6 @@ ezmq-plus has publisher, amlsubscriber, xmlsubscriber and topic-discovery sample
     ```
 **Note:** It will give list of options for running the sample. 
 
-## How to run ezmq-plus samples [docker(armhf)] ## 
-
-## Prerequisites
- - Built ezmq-plus library
- - docker-ce
-    - Version: 17.09
-    - [How to install](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
-
-## How to build
-1. Go to ~/protocol-ezmq-plus-go/src/go/ezmqx_samples/docker
-2. Build the docker image:
-   ```
-   $ ./build.sh
-   ```
-**Notes:** </br>
-(1) It will build the docker image [**docker.sec.samsung.net:5000/protocol-ezmq-plus-go-sample**] for ezmq-plus samples. </br>
-(2) Run following command to see image details: 
-    ```
-     $ docker images
-    ``` 
-
-## How to run
-### Topic Discovery sample ###
-1. Run the sample:
-    ```
-    $ docker run docker.sec.samsung.net:5000/protocol-ezmq-plus-go-sample /run.sh topicdiscovery /topic
-    ```
-**Note:** Update the **/topic**, with topic of interest.
-
-### Publisher sample ###
-1. Run the sample:
-    ```
-    $ docker run docker.sec.samsung.net:5000/protocol-ezmq-plus-go-sample /run.sh publisher /topic
-    ```
-**Note:** Update the **/topic**, with topic of interest.
-
-### AML Subscriber sample ###
-1. Run the sample:
-    ```
-    $ docker run docker.sec.samsung.net:5000/protocol-ezmq-plus-go-sample /run.sh amlsubscriber /topic
-    ```
-**Note:** Update the **/topic**, with topic of interest.
-
-### XML Subscriber sample ###
-1. Run the sample:
-    ```
-    $ docker run docker.sec.samsung.net:5000/protocol-ezmq-plus-go-sample /run.sh xmlsubscriber /topic
-    ```
-**Note:** Update the **/topic**, with topic of interest.
-
 ## Unit test and code coverage report
 
 ### Pre-requisite

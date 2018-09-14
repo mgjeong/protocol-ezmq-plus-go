@@ -34,6 +34,9 @@ EZMQX_WITH_SECURITY=true
 
 IS_SECURED="secure"
 
+PROTOCOL_EZMQ_GO_VERSION=v1.0_rc1
+DATAMODEL_AML_GO_VERSION=v1.0_rc1
+
 install_dependencies() { 
     TARGET_ARCH=${EZMQX_TARGET_ARCH}
     if [ "armhf" = ${TARGET_ARCH} ]; then
@@ -52,6 +55,7 @@ install_dependencies() {
     else
         git clone git@github.sec.samsung.net:RS7-EdgeComputing/protocol-ezmq-go.git
     fi
+    git checkout ${PROTOCOL_EZMQ_GO_VERSION}
 
     # Build ezmq-go library
     cd $DEP_ROOT/protocol-ezmq-go
@@ -66,6 +70,7 @@ install_dependencies() {
     else
         git clone git@github.sec.samsung.net:RS7-EdgeComputing/datamodel-aml-go.git
     fi
+    git checkout ${DATAMODEL_AML_GO_VERSION}
 
     # Build aml-go library
     cd $DEP_ROOT/datamodel-aml-go

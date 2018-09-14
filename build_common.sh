@@ -55,10 +55,11 @@ install_dependencies() {
     else
         git clone git@github.sec.samsung.net:RS7-EdgeComputing/protocol-ezmq-go.git
     fi
-    git checkout ${PROTOCOL_EZMQ_GO_VERSION}
-
+    
     # Build ezmq-go library
     cd $DEP_ROOT/protocol-ezmq-go
+    git checkout ${PROTOCOL_EZMQ_GO_VERSION}
+
     echo -e "${GREEN}Building protocol-ezmq-go library and its dependencies${NO_COLOUR}"
     ./build_auto.sh --target_arch=${TARGET_ARCH} --with_dependencies=${EZMQX_WITH_DEP} --build_mode=${EZMQX_BUILD_MODE} --with_security=${EZMQX_WITH_SECURITY}
     echo -e "${GREEN}Install ezmq-go done${NO_COLOUR}"
@@ -70,10 +71,11 @@ install_dependencies() {
     else
         git clone git@github.sec.samsung.net:RS7-EdgeComputing/datamodel-aml-go.git
     fi
-    git checkout ${DATAMODEL_AML_GO_VERSION}
-
+    
     # Build aml-go library
     cd $DEP_ROOT/datamodel-aml-go
+    git checkout ${DATAMODEL_AML_GO_VERSION}
+
     echo -e "${GREEN}Building datamodel-aml-go library and its dependencies${NO_COLOUR}"
     ./build_common.sh --target_arch=${TARGET_ARCH} --build_mode=${EZMQX_BUILD_MODE}
     echo -e "${GREEN}Install aml-go done${NO_COLOUR}"

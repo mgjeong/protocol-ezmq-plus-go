@@ -53,7 +53,7 @@ install_dependencies() {
     if [ -d "protocol-ezmq-go" ] ; then
         echo "protocol-ezmq-go folder exist"
     else
-        git clone git@github.sec.samsung.net:RS7-EdgeComputing/protocol-ezmq-go.git
+        git clone -b v1.0_rel git@github.sec.samsung.net:RS7-EdgeComputing/protocol-ezmq-go.git
     fi
     
     # Build ezmq-go library
@@ -69,7 +69,7 @@ install_dependencies() {
     if [ -d "datamodel-aml-go" ] ; then
         echo "datamodel-aml-go folder exist"
     else
-        git clone git@github.sec.samsung.net:RS7-EdgeComputing/datamodel-aml-go.git
+        git clone -b v1.0_rel git@github.sec.samsung.net:RS7-EdgeComputing/datamodel-aml-go.git
     fi
     
     # Build aml-go library

@@ -38,12 +38,13 @@ func printError() {
 	fmt.Printf("\n  (1) For running in standalone mode: ")
 	fmt.Printf("\n     ./xmlsubscriber -ip 192.168.1.1 -port 5562 -t /topic\n")
 	fmt.Printf("\n  (2) For running in standalone mode [With TNS]: ")
-	fmt.Printf("\n     ./xmlsubscriber -t /topic -tns 192.168.10.1\n")
+	fmt.Printf("\n     ./xmlsubscriber -t /topic -tns 192.168.10.1 -h true\n")
 	fmt.Printf("\n  (3) For running in docker mode: ")
 	fmt.Printf("\n     ./xmlsubscriber -t /topic -h true\n")
 	fmt.Printf("\n Note:")
-	fmt.Printf("\n (1) -h stands for hierarchical search for topic from TNS server\n")
-	fmt.Printf("\n (2) docker mode will work only when sample is running in docker container\n")
+	fmt.Printf("\n (1) -h [hierarchical] will work only with TNS/docker mode\n")
+	fmt.Printf("\n (2) While testing standalone mode without TNS, Make sure to give same topic on both publisher and subscriber")
+	fmt.Printf("\n (3) docker mode will work only when sample is running in docker container\n")
 	os.Exit(-1)
 }
 

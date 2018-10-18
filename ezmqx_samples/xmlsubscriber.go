@@ -84,7 +84,7 @@ func main() {
 			n = n + 1
 		} else if 0 == strings.Compare(os.Args[n], "-h") {
 			isHierarchical := os.Args[n+1]
-			hierarchical, _ := strconv.ParseBool(isHierarchical)
+			hierarchical, _ = strconv.ParseBool(isHierarchical)
 			fmt.Println("Is hierarchical: ", hierarchical)
 			n = n + 1
 		} else if 0 == strings.Compare(os.Args[n], "-tns") {

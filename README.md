@@ -128,3 +128,4 @@ Built ezmq-plus package.
 1. The microservice which wants to use ezmq-plus Go library has to import ezmq package:
     `import go/ezmqx`
 2. Reference ezmq-plus library APIs : [doc/godoc/ezmqx.html](doc/godoc/ezmqx.html)
+3. Topic naming convention guide : [Naming Guide](https://github.sec.samsung.net/RS7-EdgeComputing/protocol-ezmq-plus-cpp/blob/1.0_rel/TOPIC_NAMING_CONVENTION.md)

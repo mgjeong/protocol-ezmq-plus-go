@@ -65,7 +65,7 @@ func main() {
 	var tnsAddr string = ""
 
 	// get ip and port from command line arguments
-	if len(os.Args) != 5 && len(os.Args) != 7 {
+	if len(os.Args) != 5 && len(os.Args) != 7 && len(os.Args) != 11 {
 		printError()
 	}
 

@@ -65,7 +65,7 @@ func main() {
 	var tnsAddr string = ""
 
 	// get ip and port from command line arguments
-	if len(os.Args) != 5 && len(os.Args) != 7 && len(os.Args) != 11 {
+	if len(os.Args) != 5 && len(os.Args) != 7 {
 		printError()
 	}
 
@@ -85,7 +85,7 @@ func main() {
 			n = n + 1
 		} else if 0 == strings.Compare(os.Args[n], "-h") {
 			isHierarchical := os.Args[n+1]
-			hierarchical, _ := strconv.ParseBool(isHierarchical)
+			hierarchical, _ = strconv.ParseBool(isHierarchical)
 			fmt.Println("Is hierarchical: ", hierarchical)
 			n = n + 1
 		} else if 0 == strings.Compare(os.Args[n], "-tns") {

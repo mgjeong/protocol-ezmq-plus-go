@@ -162,6 +162,8 @@ func main() {
 		os.Exit(-1)
 	}
 
+	// this key only used on sample
+	// TODO change to real key.
 	const serverPublicKey = "tXJx&1^QE2g7WCXbF.$$TVP.wCtxwNhR8?iLi&S<"
 	const clientPublicKey = "-QW?Ved(f:<::3d5tJ$[4Er&]6#9yr=vha/caBc("
 	const clientSecretKey = "ZB1@RS6Kv^zucova$kH(!o>tZCQ.<!Q)6-0aWFmW"

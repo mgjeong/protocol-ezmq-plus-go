@@ -13,9 +13,9 @@ and serialization / deserialization middlewares along with some added functional
   - Version : 1.9
   - [How to install](https://golang.org/doc/install)
 - protocol-ezmq-go
-  - Since [protocol-ezmq-go](https://github.sec.samsung.net/RS7-EdgeComputing/protocol-ezmq-go) will be downloaded and built when protocol-ezmq-plus-go is built, check the prerequisites of it. It can be installed via build option (See 'How to build')
+  - Since [protocol-ezmq-go](https://github.com/edgexfoundry-holding/protocol-ezmq-go) will be downloaded and built when protocol-ezmq-plus-go is built, check the prerequisites of it. It can be installed via build option (See 'How to build')
 - datamodel-aml-go
-  - Since [datamodel-aml-go](https://github.sec.samsung.net/RS7-EdgeComputing/datamodel-aml-go) will be downloaded and built when protocol-ezmq-plus-gois built, check the prerequisites of it. It can be installed via build option (See 'How to build')
+  - Since [datamodel-aml-go](https://github.com/edgexfoundry-holding/datamodel-aml-go) will be downloaded and built when protocol-ezmq-plus-gois built, check the prerequisites of it. It can be installed via build option (See 'How to build')
 
 ## How to build ##
 1. Goto: ~/protocol-ezmq-plus-go/
@@ -128,4 +128,4 @@ Built ezmq-plus package.
 1. The microservice which wants to use ezmq-plus Go library has to import ezmq package:
     `import go/ezmqx`
 2. Reference ezmq-plus library APIs : [doc/godoc/ezmqx.html](doc/godoc/ezmqx.html)
-3. Topic naming convention guide : [Naming Guide](https://github.sec.samsung.net/RS7-EdgeComputing/protocol-ezmq-plus-cpp/blob/master/TOPIC_NAMING_CONVENTION.md)
+3. Topic naming convention guide : [Naming Guide](https://github.com/mgjeong/protocol-ezmq-plus-cpp/blob/master/TOPIC_NAMING_CONVENTION.md)
